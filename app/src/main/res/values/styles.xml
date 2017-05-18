@@ -37,8 +37,12 @@
     <style name="MyMaterialTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="TableButtonStyle">
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">76sp</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:layout_margin">7dp</item>
+        <item name="android:layout_width">96dp</item>
+        <item name="android:onClick">tableSelected</item>
     </style>
 
 </resources>

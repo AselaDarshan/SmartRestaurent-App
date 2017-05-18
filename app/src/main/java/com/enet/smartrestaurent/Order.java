@@ -6,9 +6,13 @@ import java.util.HashMap;
  * Created by asela on 5/17/17.
  */
 public class Order {
-    private static Order instance;
+//    private static Order instance;
 
     private HashMap<String,Integer> orderedItems;
+
+
+
+    private String tableId;
 
     public Order(){
         orderedItems = new HashMap<>();
@@ -38,5 +42,13 @@ public class Order {
 
     public HashMap<String,Integer> getOrder(){
         return orderedItems;
+    }
+
+    public String getTableId() {
+        return tableId;
+    }
+
+    public void setTableId(String tableId) {
+        this.tableId = tableId;
     }
 }

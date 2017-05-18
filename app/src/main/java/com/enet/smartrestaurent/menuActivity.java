@@ -66,6 +66,7 @@ public class menuActivity extends AppCompatActivity {
         setupTabIcons();
 
         order = new Order();
+        order.setTableId(getIntent().getStringExtra("TABLE_ID"));
     }
 
     private void setupTabIcons() {
@@ -127,6 +128,7 @@ public class menuActivity extends AppCompatActivity {
 
 //        String message = editText.getText().toString();
         intent.putExtra("ORDER", order.getOrder());
+        intent.putExtra("TABLE_ID", order.getTableId());
         startActivity(intent);
     }
     public void addButtonClickHandler(View v){
