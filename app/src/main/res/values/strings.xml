@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Silver Ring</string>
+    <string name="order_button">Place the order</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="add_button">+</string>
+    <string name="remove_button">-</string>
+
+    <string name="title_activity_confirm_order">Order Confirmation</string>
+    <string name="confirm_order">Confirm Order</string>
+    <string name="title_activity_table_selection">Select the Table</string>
+</resources>
