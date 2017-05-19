@@ -21,19 +21,19 @@ import java.util.List;
 public class OneFragment extends Fragment{
     // Array of strings for ListView Title
     String[] listviewTitle = new String[]{
-            "ListView Title 1", "ListView Title 2", "ListView Title 3", "ListView Title 4",
-            "ListView Title 5", "ListView Title 6", "ListView Title 7", "ListView Title 8",
+            "Sea Food Cocktail", "Prawn Cocktail", "Egg mayonnaise Cocktail", "Fruit Cocktail",
+
     };
 
 
     int[] listviewImage = new int[]{
             R.mipmap.ic_icecream, R.mipmap.ic_icecream,  R.mipmap.ic_icecream,  R.mipmap.ic_icecream,
-            R.mipmap.ic_icecream, R.mipmap.ic_icecream,  R.mipmap.ic_icecream, R.mipmap.ic_icecream,
+
     };
 
     String[] listviewShortDescription = new String[]{
-            "Android ListView Short Description", "Android ListView Short Description", "Android ListView Short Description", "Android ListView Short Description",
-            "Android ListView Short Description", "Android ListView Short Description", "Android ListView Short Description", "Android ListView Short Description",
+            "450", "400", "300", "250",
+
     };
     public OneFragment() {
         // Required empty public constructor
@@ -56,10 +56,10 @@ public class OneFragment extends Fragment{
     public void onViewCreated(View view, Bundle savedInstanceState) {
         List<HashMap<String, String>> aList = new ArrayList<HashMap<String, String>>();
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 4; i++) {
             HashMap<String, String> hm = new HashMap<String, String>();
             hm.put("listview_title", listviewTitle[i]);
-            hm.put("listview_discription", listviewShortDescription[i]);
+            hm.put("listview_discription", listviewShortDescription[i]+" LKR");
             hm.put("listview_image", Integer.toString(listviewImage[i]));
             aList.add(hm);
         }

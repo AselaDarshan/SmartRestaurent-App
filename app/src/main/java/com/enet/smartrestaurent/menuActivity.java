@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,12 +125,19 @@ public class menuActivity extends AppCompatActivity {
 
     }
     public void orderButtonClickHandler(View v){
-        Intent intent = new Intent(this, ConfirmOrderActivity.class);
+
 
 //        String message = editText.getText().toString();
-        intent.putExtra("ORDER", order.getOrder());
-        intent.putExtra("TABLE_ID", order.getTableId());
-        startActivity(intent);
+        if(order.getOrder().size()>0) {
+            Intent intent = new Intent(this, ConfirmOrderActivity.class);
+            intent.putExtra("ORDER", order.getOrder());
+            intent.putExtra("TABLE_ID", order.getTableId());
+            startActivity(intent);
+        }
+        else{
+            Toast toast = Toast.makeText(this,"Nothing to order",Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
     public void addButtonClickHandler(View v){
         String item =((TextView)((LinearLayout)((ViewGroup)v.getParent().getParent().getParent()).getChildAt(1)).getChildAt(0)).getText().toString();

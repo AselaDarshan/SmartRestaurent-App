@@ -19,19 +19,19 @@ import java.util.List;
 public class SaladFragment extends Fragment{
     // Array of strings for ListView Title
     String[] listviewTitle = new String[]{
-            "ListView Title 1", "ListView Title 2", "ListView Title 3", "ListView Title 4",
-            "ListView Title 5", "ListView Title 6", "ListView Title 7", "ListView Title 8",
+            "Chef Salad", "Sliver Ring Special Salad", "Chicken Pineapple Salad", "Russian Salad",
+            "Mix Salad", "Coleslaw Salad",
     };
 
 
     int[] listviewImage = new int[]{
             R.mipmap.ic_icecream, R.mipmap.ic_icecream,  R.mipmap.ic_icecream,  R.mipmap.ic_icecream,
-            R.mipmap.ic_icecream, R.mipmap.ic_icecream,  R.mipmap.ic_icecream, R.mipmap.ic_icecream,
+            R.mipmap.ic_icecream, R.mipmap.ic_icecream,
     };
 
     String[] listviewShortDescription = new String[]{
-            "Android ListView Short Description", "Android ListView Short Description", "Android ListView Short Description", "Android ListView Short Description",
-            "Android ListView Short Description", "Android ListView Short Description", "Android ListView Short Description", "Android ListView Short Description",
+            "650", "450", "350", "300",
+            "300", "300",
     };
     public SaladFragment() {
         // Required empty public constructor
@@ -54,10 +54,10 @@ public class SaladFragment extends Fragment{
     public void onViewCreated(View view, Bundle savedInstanceState) {
         List<HashMap<String, String>> aList = new ArrayList<HashMap<String, String>>();
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 6; i++) {
             HashMap<String, String> hm = new HashMap<String, String>();
             hm.put("listview_title", listviewTitle[i]);
-            hm.put("listview_discription", listviewShortDescription[i]);
+            hm.put("listview_discription", listviewShortDescription[i]+" LKR");
             hm.put("listview_image", Integer.toString(listviewImage[i]));
             aList.add(hm);
         }

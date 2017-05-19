@@ -52,7 +52,7 @@
             android:id="@+id/confirmButton"
             android:layout_gravity="bottom"
             android:background="@drawable/button"
-
+            android:onClick="confirmOrder"
             android:textColor="@color/colorAccent" />
 
 

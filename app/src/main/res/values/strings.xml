@@ -9,4 +9,8 @@
     <string name="title_activity_confirm_order">Order Confirmation</string>
     <string name="confirm_order">Confirm Order</string>
     <string name="title_activity_table_selection">Select the Table</string>
+    <string name="title_activity_starting">Silver Ring Village Hotel</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="ip_key">IP</string>
 </resources>
