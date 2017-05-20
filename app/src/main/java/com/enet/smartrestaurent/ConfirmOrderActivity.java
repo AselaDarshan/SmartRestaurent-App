@@ -1,24 +1,21 @@
 package com.enet.smartrestaurent;
 
-import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StrictMode;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -28,13 +25,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -89,6 +80,10 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
         StrictMode.setThreadPolicy(policy);
         sharedPref = getSharedPreferences("pref",Context.MODE_PRIVATE);
+
+        IntentFilter filter = new IntentFilter(Constants.ORDER_ACTION);
+        this.registerReceiver(new Receiver(), filter);
+
 //        Button confirm = (Button) findViewById(R.id.confirmButton);
 //        try {
 //            confirm.setOnClickListener(new View.OnClickListener() {
@@ -148,29 +143,37 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     }
 
     public void confirmOrder(View v){
-        try {
+        CommunicationService.sendToServer(this,dataToSend.toString(),Constants.ORDER_ACTION);
+//        try {
+//
+//
+//            String  ip = sharedPref.getString(getString(R.string.ip_key), "192.168.8.100");
+//
+////            Socket s = new Socket("192.168.8.108", 8080);
+//            Socket s = new Socket(ip, 8080);
+//
+//            PrintWriter outp = new PrintWriter(s.getOutputStream(), true);
+//            BufferedReader inp = new BufferedReader(new InputStreamReader(s.getInputStream()));
+//            String serverMsg;
+////            JSONObject dataObj = new JSONObject(dataToSend);
+//            Log.d("communication",dataToSend.toString());
+//            outp.println(dataToSend.toString());
+//            for(int i=0;i<5;i++) {
+//                serverMsg = inp.readLine();
+//                Log.d("communication", serverMsg);
+//            }
+//        } catch (IOException e) {
+//            Toast toast = Toast.makeText(this,"Communication Error!",Toast.LENGTH_SHORT);
+//            toast.show();
+//            e.printStackTrace();
+//            return;
+//        }
 
 
-            String  ip = sharedPref.getString(getString(R.string.ip_key), "192.168.8.100");
 
-//            Socket s = new Socket("192.168.8.108", 8080);
-            Socket s = new Socket(ip, 8080);
+    }
 
-            PrintWriter outp = new PrintWriter(s.getOutputStream(), true);
-            BufferedReader inp = new BufferedReader(new InputStreamReader(s.getInputStream()));
-            String serverMsg;
-//            JSONObject dataObj = new JSONObject(dataToSend);
-            Log.d("communication",dataToSend.toString());
-            outp.println(dataToSend.toString());
-            serverMsg = inp.readLine();
-            Log.d("communication",serverMsg);
-        } catch (IOException e) {
-            Toast toast = Toast.makeText(this,"Communication Error!",Toast.LENGTH_SHORT);
-            toast.show();
-            e.printStackTrace();
-            return;
-        }
-
+    public void orderSucceed(){
         final ConfirmOrderActivity obj= this;
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -190,7 +193,24 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .show();
-
     }
+
+    private class Receiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
+            Log.d("communication","Received to confirmOrderActivity: "+response);
+            if(response!=Constants.ERROR_RESPONSE)
+                orderSucceed();
+            else{
+                Log.d("communication","Received to confirmOrderActivity: error ");
+                Toast toast = Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
+    }
+
+
 
 }
