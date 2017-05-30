@@ -40,6 +40,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
      */
     private JSONObject dataToSend;
     private SharedPreferences sharedPref;
+    private Receiver receiver = new Receiver();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +83,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         sharedPref = getSharedPreferences("pref",Context.MODE_PRIVATE);
 
         IntentFilter filter = new IntentFilter(Constants.ORDER_ACTION);
-        this.registerReceiver(new Receiver(), filter);
+        this.registerReceiver(receiver, filter);
 
 //        Button confirm = (Button) findViewById(R.id.confirmButton);
 //        try {
@@ -141,7 +142,12 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         // are available.
 
     }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        this.unregisterReceiver(receiver);
 
+    }
     public void confirmOrder(View v){
         CommunicationService.sendToServer(this,dataToSend.toString(),Constants.ORDER_ACTION);
 //        try {

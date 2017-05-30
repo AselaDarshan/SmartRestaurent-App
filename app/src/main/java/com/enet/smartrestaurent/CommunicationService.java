@@ -139,7 +139,6 @@ public class CommunicationService extends IntentService {
             e.printStackTrace();
         }
 
-
     }
     /**
      * Handle action Baz in the provided background thread with the provided
@@ -154,18 +153,34 @@ public class CommunicationService extends IntentService {
                 SharedPreferences sharedPref=getSharedPreferences("pref",Context.MODE_PRIVATE);
                 String ip = sharedPref.getString(getString(R.string.ip_key), "172.24.1.1");
                 s = new Socket(ip, 8080);
+                CommunicationService.startReceving(this,"","");
+                Log.d("communication service", "connecting..");
             }
 
 
             PrintWriter outp = new PrintWriter(s.getOutputStream(), true);
-            Log.d("communication service", "send: "+data);
+
             outp.println(data);
+            Boolean success = !outp.checkError();
+            if(success){
+                GlobalState.setConnected(true);
+                Log.d("communication service", "sending success: "+data);
+            }
+            else{
+                GlobalState.setConnected(false);
+                Log.d("communication service", "Failed: "+data);
+                if(s!=null)
+                    s.close();
+                s = null;
+            }
+
 
 
 
         } catch (IOException e) {
 //            Toast toast = Toast.makeText(this, "Communication Error!", Toast.LENGTH_SHORT);
 //            toast.show();
+            GlobalState.setConnected(false);
             Log.d("communication service","error");
             Intent intent=new Intent();
             intent.setAction(action);
@@ -192,20 +207,31 @@ public class CommunicationService extends IntentService {
                     Log.d("communication service", "waiting for messages");
                     serverMsg = inp.readLine();
 
-                    if (serverMsg == null) {
-                        s.close();
-                        s = null;
+
+                    try {
+                        if (serverMsg.contains("order_success"))
+                            action = Constants.ORDER_ACTION;
+                        else if (serverMsg.contains("Ready!"))
+                            action = Constants.CHECKUPDATES_ACTION;
+                        else
+                            action = "";
+
+                        Log.d("communication service", "Received: " + serverMsg);
+                    }
+                    catch (NullPointerException e){
+                        Log.d("communication service", "Null response received. reconnecting");
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                        try {
+                            s.close();
+                            s = null;
+                        }
+                        catch (NullPointerException ex){}
                         CommunicationService.startReceving(getBaseContext(),"","");
                     }
-
-                    if(serverMsg.contains("order_success"))
-                        action = Constants.ORDER_ACTION;
-                    else if(serverMsg.contains("Ready!"))
-                        action = Constants.CHECKUPDATES_ACTION;
-                    else
-                        action = "";
-
-                    Log.d("communication service", "Received: " + serverMsg);
                     // startActionReceive(this,"");
 
 
@@ -215,6 +241,11 @@ public class CommunicationService extends IntentService {
                     sendBroadcast(intent);
 
                 } catch (IOException e) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
                     Log.d("communication service", "error in receive thread");
                     Intent intent = new Intent();
                     intent.setAction(Constants.CHECKUPDATES_ACTION);

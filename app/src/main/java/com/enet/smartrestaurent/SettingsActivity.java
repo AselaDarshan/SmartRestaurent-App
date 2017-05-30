@@ -28,7 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(Html.fromHtml("<font color=#8B0000>Settings</font>"));
 
         sharedPref = getSharedPreferences("pref",Context.MODE_PRIVATE);
-        ((EditText)findViewById(R.id.ip_text)).setText(sharedPref.getString(getString(R.string.ip_key), "192.168.8.100"));
+        ((EditText)findViewById(R.id.ip_text)).setText(sharedPref.getString(getString(R.string.ip_key), "172.24.1.1"));
 
     }
 

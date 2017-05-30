@@ -5,14 +5,18 @@ package com.enet.smartrestaurent;
  */
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -54,12 +58,23 @@ public class SaladFragment extends Fragment{
     public void onViewCreated(View view, Bundle savedInstanceState) {
         List<HashMap<String, String>> aList = new ArrayList<HashMap<String, String>>();
 
-        for (int i = 0; i < 6; i++) {
-            HashMap<String, String> hm = new HashMap<String, String>();
-            hm.put("listview_title", listviewTitle[i]);
-            hm.put("listview_discription", listviewShortDescription[i]+" LKR");
-            hm.put("listview_image", Integer.toString(listviewImage[i]));
-            aList.add(hm);
+        Iterator<MenuItem> menuItemIterator = MenuItem.findAll(MenuItem.class);
+        MenuItem item;
+//        Log.d("add menu item",String.valueOf(MenuItem.findById(MenuItem.class,(long)0).price));
+        while (menuItemIterator.hasNext()){
+            item = menuItemIterator.next();
+            try {
+
+                Log.d("add menu item",item.toString());
+                HashMap<String, String> hm = new HashMap<String, String>();
+                hm.put("listview_title", item.name);
+                hm.put("listview_discription", String.valueOf(item.price) + " LKR");
+                hm.put("listview_image", Integer.toString(listviewImage[0]));
+                aList.add(hm);
+            }
+            catch (NullPointerException ex){
+                Log.d("add menu item error",ex.toString());
+            }
         }
 
         String[] from = {"listview_image", "listview_title", "listview_discription"};

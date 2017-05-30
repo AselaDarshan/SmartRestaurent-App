@@ -10,4 +10,8 @@ public class Constants {
     public static final String RESPONSE_KEY = "response";
     public static final String ORDER_ACTION = "order_action";
     public static final String CHECKUPDATES_ACTION = "check_updates_action";
+
+    public static final String BROADCAST_ACTION = "broadcast_action";
+    public static final String EXTENDED_DATA_STATUS = "data_status";
+    public static final String COMMUNICATION_ERROR = "error";
 }
