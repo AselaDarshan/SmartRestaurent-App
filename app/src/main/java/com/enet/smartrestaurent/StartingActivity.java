@@ -41,8 +41,8 @@ public class StartingActivity extends AppCompatActivity {
         this.registerReceiver(receiver, filter);
 
 //        SugarContext.init(this);
-        new Menu().initialize();
-        CheckUpdatesService.startActionUpdateCheck(this,"","");
+        new Menu().initialize(getApplicationContext());
+       // CheckUpdatesService.startActionUpdateCheck(this,"","");
 
 
     }

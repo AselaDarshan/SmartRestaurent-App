@@ -14,4 +14,7 @@ public class Constants {
     public static final String BROADCAST_ACTION = "broadcast_action";
     public static final String EXTENDED_DATA_STATUS = "data_status";
     public static final String COMMUNICATION_ERROR = "error";
+
+    public static final String API_BASE_URL = "http://192.168.8.105/api/api.php/";
+    public static final String API_MENU = "forsj3vth_menus";
 }

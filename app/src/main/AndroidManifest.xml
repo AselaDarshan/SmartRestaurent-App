@@ -53,6 +53,9 @@
         <service
             android:name=".CheckUpdatesService"
             android:exported="false"></service>
+        <service
+            android:name=".WebServerCommunicationService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

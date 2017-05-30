@@ -36,6 +36,7 @@ public class WebServerCommunicationService extends IntentService {
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_POST = "action.POST";
+    private static final String ACTION_GET = "action.GET";
     private static final String ACTION_JSON_POST= "JSON_POST";
     private static final String ACTION_BAZ = "action.BAZ";
 
@@ -65,6 +66,13 @@ public class WebServerCommunicationService extends IntentService {
         intent.putExtra(PARAM_URL,url);
         context.startService(intent);
     }
+    public static void sendGetRequest(Context context, String url) {
+        Log.d("communication_service","sendGetRequest");
+        Intent intent = new Intent(context, WebServerCommunicationService.class);
+        intent.setAction(ACTION_GET);
+        intent.putExtra(PARAM_URL,url);
+        context.startService(intent);
+    }
 
     public static void sendJsonPostRequest(Context context, String data, String url) {
         Log.d("communication_service","send json post request: "+data+" url: "+url);
@@ -74,65 +82,6 @@ public class WebServerCommunicationService extends IntentService {
         intent.putExtra(PARAM_URL,url);
         context.startService(intent);
     }
-//    public static void authenticateUser(final VolleyCallback callback,final Map<String,String> payload, final Context context){
-//
-//        StringRequest jsObjRequest = new StringRequest
-//                (Request.Method.POST, loginUrl, new Response.Listener<String>() {
-//
-//                    @Override
-//                    public void onResponse(String response) {
-//                        //mTxtDisplay.setText("Response: " + response.toString());
-//                        Log.d("response",response.toString());
-//                        try {
-//                            callback.onSuccess(new JSONObject(response.toString()));
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
-//                }, new Response.ErrorListener() {
-//
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        // TODO Auto-generated method stub
-//                        // As of f605da3 the following should work
-//                        if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-//                            Toast.makeText(context,"time out",Toast.LENGTH_LONG).show();
-//                        } else if (error instanceof AuthFailureError) {
-//                            //TODO
-//                            Toast.makeText(context,"incorrect account number or password",Toast.LENGTH_LONG).show();
-//                        } else if (error instanceof ServerError) {
-//                            //TODO
-//                            Toast.makeText(context,"Server Error",Toast.LENGTH_LONG).show();
-//                        } else if (error instanceof NetworkError) {
-//                            //TODO
-//                            Toast.makeText(context,"Network Error",Toast.LENGTH_LONG).show();
-//                        } else if (error instanceof ParseError) {
-//                            //TODO
-//                            Toast.makeText(context,"Error in Application(Parse Error)",Toast.LENGTH_LONG).show();
-//                        }
-//                    }
-//                }){
-//            @Override
-//            protected Map<String, String> getParams() throws AuthFailureError {
-//                Map<String,String> params=payload;
-//                return params;
-//
-//            }
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<>();
-//                params.put("Content-Type", "application/x-www-form-urlencoded");
-//                String key = clientkey+":"+secretkey;
-//                params.put("Authorization", "Basic "+Base64.encodeToString(key.getBytes(), Base64.DEFAULT));
-//                return params;
-//            }
-//
-//        };
-//
-//        MySingleton.getInstance(context).addToRequestQueue(jsObjRequest);
-//
-//    }
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -141,6 +90,9 @@ public class WebServerCommunicationService extends IntentService {
             final String action = intent.getAction();
             if (ACTION_POST.equals(action)) {
                 handleActionHttpPostRequest((HashMap<String, String>)intent.getSerializableExtra(PARAM_DATA),intent.getStringExtra(PARAM_URL));
+            }
+            else if(ACTION_GET.equals(action)) {
+                handleGetRequest(intent.getStringExtra(PARAM_URL));
             }
             if (ACTION_JSON_POST.equals(action)) {
                 try {
@@ -256,6 +208,32 @@ public class WebServerCommunicationService extends IntentService {
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
 
+    }
+
+    private void handleGetRequest(final String url){
+        Log.d("communication_service","sending get request: "+url);
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        Log.d("Response", response.toString());
+                        broadcast(response.toString());
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.getStackTrace().toString());
+                    }
+                }
+        );
+
+// add it to the RequestQueue
+        queue.add(getRequest);
     }
 
     private void broadcast(String status ){
