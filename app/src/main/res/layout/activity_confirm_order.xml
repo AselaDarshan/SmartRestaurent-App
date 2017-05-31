@@ -20,7 +20,7 @@
                 android:id="@+id/textView2"
                 android:layout_margin="8dp"
                 android:textSize="16sp" />
-            <EditText
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4"
@@ -47,13 +47,14 @@
 
         <Button
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="58sp"
             android:text="@string/confirm_order"
             android:id="@+id/confirmButton"
             android:layout_gravity="bottom"
             android:background="@drawable/button"
             android:onClick="confirmOrder"
-            android:textColor="@color/colorAccent" />
+            android:textColor="@color/colorAccent"
+            style="@style/ButtonStyle" />
 
 
 

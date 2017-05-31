@@ -236,19 +236,29 @@ public class WebServerCommunicationService extends IntentService {
         queue.add(getRequest);
     }
 
-    private void broadcast(String status ){
+    private void broadcast(String response ){
          /*
      * Creates a new Intent containing a Uri object
      * BROADCAST_ACTION is a custom Intent action
      */
-        Intent localIntent =
-                new Intent(Constants.BROADCAST_ACTION)
-                        // Puts the status into the Intent
-                        .putExtra(Constants.EXTENDED_DATA_STATUS, status);
-        // Broadcasts the Intent to receivers in this app.
-        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+//        Intent localIntent =
+//                new Intent(Constants.MENU_UPDATE_ACTION)
+//                        // Puts the status into the Intent
+//                        .putExtra(Constants.EXTENDED_DATA_STATUS, status);
+//        // Broadcasts the Intent to receivers in this app.
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+        Intent intent = new Intent();
+        intent.setAction(Constants.MENU_UPDATE_ACTION);
+        intent.putExtra(Constants.RESPONSE_KEY, response);
+        sendBroadcast(intent);
+
 
     }
+
+
+
+
+
 
 }
 

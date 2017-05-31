@@ -33,10 +33,11 @@
         android:id="@+id/dummy_button"
         android:background="@drawable/button"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="58sp"
         android:text="@string/order_button"
         android:onClick="orderButtonClickHandler"
-        android:textColor="@color/colorAccent" />
+        android:textColor="@color/colorAccent"
+        style="@style/ButtonStyle" />
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,

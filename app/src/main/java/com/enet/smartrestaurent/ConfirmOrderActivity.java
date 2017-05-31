@@ -48,7 +48,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_confirm_order);
 
-        EditText tableIdText = (EditText)ConfirmOrderActivity.this.findViewById(R.id.table_id_text);
+        TextView tableIdText = (TextView) ConfirmOrderActivity.this.findViewById(R.id.table_id_text);
         tableIdText.setText(getIntent().getStringExtra("TABLE_ID"));
 
         HashMap<String,Integer> orderList = (HashMap<String, Integer>) getIntent().getSerializableExtra("ORDER");
