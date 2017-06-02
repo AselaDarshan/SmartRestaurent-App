@@ -8,11 +8,14 @@ import com.orm.SugarRecord;
 public class Category extends SugarRecord<MenuItem> {
     int categoryId;
     String name;
+    String imageName;
 
     public Category(){}
 
-    public Category(int categoryId, String name){
+    public Category(int categoryId, String name,String imageName){
         this.categoryId = categoryId;
         this.name = name;
+        this.imageName = imageName;
+
     }
 }

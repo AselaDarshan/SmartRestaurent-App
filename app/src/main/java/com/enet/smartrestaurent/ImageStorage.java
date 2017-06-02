@@ -36,7 +36,7 @@ public class ImageStorage {
 
         try {
             FileOutputStream out = new FileOutputStream(mypath);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.flush();
             out.close();
             stored = "success";

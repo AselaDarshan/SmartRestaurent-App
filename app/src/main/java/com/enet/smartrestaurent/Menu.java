@@ -34,13 +34,11 @@ public class Menu {
             String imageName = item.getString(4);
             Log.d("Menu","imageName: "+imageName);
             try{
-                imageName = item.getString(4).split("/")[1].split("\\.")[0] + "-120x120.jpg";
+                imageName = item.getString(4).split("/")[1].split("\\.")[0] + "-120x120."+imageName.split("/")[1].split("\\.")[1];
             }
             catch (java.lang.ArrayIndexOutOfBoundsException ex){
-                imageName = "salad-120x120.jpg";
+                imageName = "no_photo-120x120.png";
             }
-            items.add(new MenuItem(item.getInt(0),item.getInt(5),item.getString(1),item.getDouble(3),imageName));
-            Log.d("adding menu item:",menuArray.getJSONArray(i).getString(1));
 
 
             if(ImageStorage.checkifImageExists(imageName,ctx))
@@ -53,9 +51,13 @@ public class Menu {
                     //imageView.setImageBitmap(b);
                 }
             } else {
-                String imgurl = "http://192.168.8.107/assets/images/thumbs/"+imageName;
+                String imgurl = Constants.IMAGE_THUMBS_URL+imageName;
                 new GetImages(imgurl, imageName,ctx).execute() ;
             }
+
+            items.add(new MenuItem(item.getInt(0),item.getInt(5),item.getString(1),item.getDouble(3),imageName));
+            Log.d("adding menu item:",menuArray.getJSONArray(i).getString(1));
+
         }
 
         MenuItem.deleteAll(MenuItem.class);
@@ -69,7 +71,34 @@ public class Menu {
 
         for(int i=0;i<menuArray.length();i++){
             JSONArray item = menuArray.getJSONArray(i);
-            categoryArrayList.add(new Category(item.getInt(0),item.getString(1)));
+
+
+            String imageName = item.getString(5);
+            Log.d("Category","imageName: "+imageName);
+            try{
+                imageName = imageName.split("/")[1].split("\\.")[0] + "-120x120."+imageName.split("/")[1].split("\\.")[1] ;
+            }
+            catch (java.lang.ArrayIndexOutOfBoundsException ex){
+                imageName = "no_photo-120x120.png";
+            }
+
+
+            if(ImageStorage.checkifImageExists(imageName,ctx))
+            {
+                File file = ImageStorage.getImage("/"+imageName,ctx);
+                String path = file.getAbsolutePath();
+                if (path != null){
+                    Log.d("image found",path);
+                    // b = BitmapFactory.decodeFile(path);
+                    //imageView.setImageBitmap(b);
+                }
+            } else {
+                String imgurl = Constants.IMAGE_THUMBS_URL+imageName;
+                new GetImages(imgurl, imageName,ctx).execute() ;
+            }
+
+
+            categoryArrayList.add(new Category(item.getInt(0),item.getString(1),imageName));
             Log.d("adding category",item.getInt(0)+":"+item.getString(1));
         }
 

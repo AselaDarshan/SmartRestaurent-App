@@ -1,7 +1,12 @@
 package com.enet.smartrestaurent;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,6 +30,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,12 +48,7 @@ public class menuActivity extends AppCompatActivity {
 
     private Order order;
 
-    private int[] tabIcons = {
-            R.mipmap.ic_appetizer,
-            R.mipmap.ic_salad,
-            R.mipmap.ic_soup,
-            R.mipmap.ic_sandwich
-    };
+    private ArrayList<Drawable> icons;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +62,8 @@ public class menuActivity extends AppCompatActivity {
 //        getActionBar().setTitle("Silver Ring Village Hotel");
         getSupportActionBar().setTitle(Html.fromHtml("<font color=#8B0000>Silver Ring Village Hotel - MENU</font>"));
         viewPager = (ViewPager) findViewById(R.id.viewpager);
+
+        icons = new ArrayList<>();
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -72,10 +75,19 @@ public class menuActivity extends AppCompatActivity {
     }
 
     private void setupTabIcons() {
-        tabLayout.getTabAt(0).setIcon(tabIcons[0]);
-        tabLayout.getTabAt(1).setIcon(tabIcons[1]);
-        tabLayout.getTabAt(2).setIcon(tabIcons[2]);
-        tabLayout.getTabAt(3).setIcon(tabIcons[3]);
+//        File path = ImageStorage.getImage("ic_salad-120x120.png", getApplicationContext());
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+////        options.inDither = true;
+////        options.inPreferredConfig = Bitmap.Config.ALPHA_8;
+//
+//        Bitmap b = BitmapFactory.decodeFile(path.getAbsolutePath());
+//        Drawable d = new BitmapDrawable(getApplicationContext().getResources(),b);
+        for(int i=0;i<icons.size();i++)
+            tabLayout.getTabAt(i).setIcon(icons.get(i));
+
+//        tabLayout.getTabAt(1).setIcon(tabIcons[1]);
+//        tabLayout.getTabAt(2).setIcon(tabIcons[2]);
+//        tabLayout.getTabAt(3).setIcon(tabIcons[3]);
     }
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -85,6 +97,7 @@ public class menuActivity extends AppCompatActivity {
             Iterator<Category> categoryIterator = Category.findAll(Category.class);
             Category category;
 //        Log.d("add menu item",String.valueOf(MenuItem.findById(MenuItem.class,(long)0).price));
+            int i=0;
             while (categoryIterator.hasNext()) {
                 category = categoryIterator.next();
                 try {
@@ -97,6 +110,11 @@ public class menuActivity extends AppCompatActivity {
                     fragment.setArguments(args);
                     adapter.addFrag(fragment, category.name);
 
+                    File path = ImageStorage.getImage(category.imageName, getApplicationContext());
+                    Bitmap b = BitmapFactory.decodeFile(path.getAbsolutePath());
+                    Drawable d =new BitmapDrawable(b);
+                    icons.add(d);
+//                    tabLayout.getTabAt(i++).setIcon(d);
 
 
                 } catch (NullPointerException ex) {

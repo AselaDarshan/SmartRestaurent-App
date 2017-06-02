@@ -14,6 +14,7 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -65,9 +66,11 @@ public class SaladFragment extends Fragment{
                     Log.d("fragment","add menu item: "+ item.toString());
                     HashMap<String, String> hm = new HashMap<String, String>();
                     hm.put("listview_title", item.name);
-                    hm.put("listview_price", String.valueOf(item.price) + " LKR");
+                    DecimalFormat decim = new DecimalFormat("0.00");
+                    hm.put("listview_price", decim.format(item.price) + " LKR");
                     hm.put("listview_image",item.imageName );
                     aList.add(hm);
+
                 } catch (NullPointerException ex) {
                     Log.d("add menu item error", ex.toString());
                 }
