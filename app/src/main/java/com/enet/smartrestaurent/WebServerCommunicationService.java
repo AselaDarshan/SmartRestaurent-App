@@ -46,6 +46,8 @@ public class WebServerCommunicationService extends IntentService {
     private static final String EXTRA_PARAM1 = "extra.PARAM1";
     private static final String EXTRA_PARAM2 = "extra.PARAM2";
 
+    private static final String ACTION_KEY = "extra.action.key";
+
 
     public WebServerCommunicationService() {
         super("ServerCommunicationIntentService");
@@ -66,11 +68,12 @@ public class WebServerCommunicationService extends IntentService {
         intent.putExtra(PARAM_URL,url);
         context.startService(intent);
     }
-    public static void sendGetRequest(Context context, String url) {
+    public static void sendGetRequest(Context context, String url,String action) {
         Log.d("communication_service","sendGetRequest");
         Intent intent = new Intent(context, WebServerCommunicationService.class);
         intent.setAction(ACTION_GET);
         intent.putExtra(PARAM_URL,url);
+        intent.putExtra(ACTION_KEY,action);
         context.startService(intent);
     }
 
@@ -89,15 +92,15 @@ public class WebServerCommunicationService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_POST.equals(action)) {
-                handleActionHttpPostRequest((HashMap<String, String>)intent.getSerializableExtra(PARAM_DATA),intent.getStringExtra(PARAM_URL));
+                handleActionHttpPostRequest((HashMap<String, String>)intent.getSerializableExtra(PARAM_DATA),intent.getStringExtra(PARAM_URL),"");
             }
             else if(ACTION_GET.equals(action)) {
-                handleGetRequest(intent.getStringExtra(PARAM_URL));
+                handleGetRequest(intent.getStringExtra(PARAM_URL),intent.getStringExtra(ACTION_KEY));
             }
             if (ACTION_JSON_POST.equals(action)) {
                 try {
                     JSONObject jsonData = new JSONObject(intent.getStringExtra(PARAM_DATA));
-                    handleActionJsonPostRequest(jsonData, intent.getStringExtra(PARAM_URL));
+                    handleActionJsonPostRequest(jsonData, intent.getStringExtra(PARAM_URL),"");
                 }catch (JSONException e){
                     e.printStackTrace();
                 }
@@ -105,7 +108,7 @@ public class WebServerCommunicationService extends IntentService {
 
         }
     }
-    private void handleActionHttpPostRequest(final Map<String, String> MyData, String url) {
+    private void handleActionHttpPostRequest(final Map<String, String> MyData, String url,final String action) {
         // Instantiate the RequestQueue.
         SecurityHandler.handleSSLHandshake();
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -117,14 +120,14 @@ public class WebServerCommunicationService extends IntentService {
                 //This code is executed if the server responds, whether or not the response contains data.
                 //The String 'response' contains the server's response.
                 Log.d("communication_service","http response: "+response);
-                broadcast(response);
+                broadcast(response,action);
             }
         }, new Response.ErrorListener() { //Create an error listener to handle errors appropriately.
             @Override
             public void onErrorResponse(VolleyError error) {
                 //This code is executed if there is an error.
                 Log.d("communication_service","http error: "+error.toString());
-                broadcast(Constants.COMMUNICATION_ERROR);
+                broadcast(Constants.COMMUNICATION_ERROR,action);
             }
         }) {
             @Override
@@ -166,7 +169,7 @@ public class WebServerCommunicationService extends IntentService {
 
     }
 
-    private void handleActionJsonPostRequest(final JSONObject data, String url) {
+    private void handleActionJsonPostRequest(final JSONObject data, String url,final String action) {
         // Instantiate the RequestQueue.
         SecurityHandler.handleSSLHandshake();
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -178,14 +181,14 @@ public class WebServerCommunicationService extends IntentService {
                 //This code is executed if the server responds, whether or not the response contains data.
                 //The String 'response' contains the server's response.
                 Log.d("communication_service","http json response: "+response);
-                broadcast(response.toString());
+                broadcast(response.toString(),action);
             }
         }, new Response.ErrorListener() { //Create an error listener to handle errors appropriately.
             @Override
             public void onErrorResponse(VolleyError error) {
                 //This code is executed if there is an error.
                 Log.d("communication_service","http error: "+error.toString());
-                broadcast(Constants.COMMUNICATION_ERROR);
+                broadcast(Constants.COMMUNICATION_ERROR,action);
             }
         }) {
             protected Map<String, String> getParams() {
@@ -210,7 +213,7 @@ public class WebServerCommunicationService extends IntentService {
 
     }
 
-    private void handleGetRequest(final String url){
+    private void handleGetRequest(final String url,final String action){
         Log.d("communication_service","sending get request: "+url);
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
@@ -220,14 +223,14 @@ public class WebServerCommunicationService extends IntentService {
                     public void onResponse(JSONObject response) {
                         // display response
                         Log.d("Response", response.toString());
-                        broadcast(response.toString());
+                        broadcast(response.toString(),action);
                     }
                 },
                 new Response.ErrorListener()
                 {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("Error.Response", error.getStackTrace().toString());
+                        Log.d("Error.Response", error.toString());
                     }
                 }
         );
@@ -236,28 +239,19 @@ public class WebServerCommunicationService extends IntentService {
         queue.add(getRequest);
     }
 
-    private void broadcast(String response ){
+    private void broadcast(String response, String action){
          /*
      * Creates a new Intent containing a Uri object
      * BROADCAST_ACTION is a custom Intent action
      */
-//        Intent localIntent =
-//                new Intent(Constants.MENU_UPDATE_ACTION)
-//                        // Puts the status into the Intent
-//                        .putExtra(Constants.EXTENDED_DATA_STATUS, status);
-//        // Broadcasts the Intent to receivers in this app.
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+        Log.d("communication_service","broadcasting: "+action);
         Intent intent = new Intent();
-        intent.setAction(Constants.MENU_UPDATE_ACTION);
+        intent.setAction(action);
         intent.putExtra(Constants.RESPONSE_KEY, response);
         sendBroadcast(intent);
 
 
     }
-
-
-
-
 
 
 }

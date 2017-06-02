@@ -11,11 +11,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -24,16 +21,12 @@ import android.widget.Toast;
 
 //import com.orm.SugarContext;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Objects;
 
 public class StartingActivity extends AppCompatActivity {
 
     private Receiver receiver = new Receiver();
-    private Receiver menuUpdatereceiver = new Receiver();
 
     private Menu menu;
 
@@ -47,11 +40,12 @@ public class StartingActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(Html.fromHtml("<font color=#8B0000>Silver Ring Village Hotel</font>"));
 
-        IntentFilter filter = new IntentFilter(Constants.CHECKUPDATES_ACTION);
-        this.registerReceiver(receiver, filter);
-
-        IntentFilter filter1 = new IntentFilter(Constants.MENU_UPDATE_ACTION);
-        this.registerReceiver(menuUpdatereceiver, filter1);
+        IntentFilter checkUpdateIntentfilter = new IntentFilter(Constants.CHECKUPDATES_ACTION);
+        IntentFilter menuUpdateIntentFilter = new IntentFilter(Constants.MENU_UPDATE_ACTION);
+        IntentFilter categoriesUpdateIntentFilter = new IntentFilter(Constants.CATEGORIES_UPDATE_ACTION);
+        this.registerReceiver(receiver,checkUpdateIntentfilter);
+        this.registerReceiver(receiver, menuUpdateIntentFilter);
+        this.registerReceiver(receiver, categoriesUpdateIntentFilter);
 
         
 
@@ -67,8 +61,6 @@ public class StartingActivity extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         this.unregisterReceiver(receiver);
-        this.unregisterReceiver(menuUpdatereceiver);
-
     }
 
     public void newOrderButtonClicked(View v){
@@ -123,12 +115,23 @@ public class StartingActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
-            Log.d("broadcast received:",arg1.getAction());
+            Log.d("broadcast_received:",arg1.getAction());
 
             if(arg1.getAction().equals(Constants.MENU_UPDATE_ACTION)){
                 try {
                     JSONObject jObject = new JSONObject(response);
-                    menu.updateMenu(getApplicationContext(),jObject);
+                    menu.updateMenuItems(getApplicationContext(),jObject);
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            else if(arg1.getAction().equals(Constants.CATEGORIES_UPDATE_ACTION)){
+                try {
+                    JSONObject jObject = new JSONObject(response);
+                    menu.updateCategories(getApplicationContext(),jObject);
 
 
                 } catch (JSONException e) {

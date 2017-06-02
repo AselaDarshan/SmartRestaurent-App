@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -78,10 +79,40 @@ public class menuActivity extends AppCompatActivity {
     }
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new OneFragment(), "APPETIZERS");
-        adapter.addFrag(new SaladFragment(), "SALAD");
-        adapter.addFrag(new SoupFragment(), "SOUP");
-        adapter.addFrag(new SandwichFragment(), "SANDWICH");
+        try {
+
+
+            Iterator<Category> categoryIterator = Category.findAll(Category.class);
+            Category category;
+//        Log.d("add menu item",String.valueOf(MenuItem.findById(MenuItem.class,(long)0).price));
+            while (categoryIterator.hasNext()) {
+                category = categoryIterator.next();
+                try {
+
+                    Log.d("menuActivity", "get category: "+category.categoryId+":"+category.name);
+
+                    SaladFragment fragment = new SaladFragment();
+                    Bundle args = new Bundle();
+                    args.putInt("index", category.categoryId);
+                    fragment.setArguments(args);
+                    adapter.addFrag(fragment, category.name);
+
+
+
+                } catch (NullPointerException ex) {
+                    Log.d("add menu item error", ex.toString());
+                }
+            }
+
+
+        }
+        catch (android.database.sqlite.SQLiteException ex){
+            Toast.makeText(this,"No Data",Toast.LENGTH_SHORT).show();
+        }
+//        adapter.addFrag(new OneFragment(), "APPETIZERS");
+//        adapter.addFrag(new SaladFragment(), "SALAD");
+//        adapter.addFrag(new SoupFragment(), "SOUP");
+//        adapter.addFrag(new SandwichFragment(), "SANDWICH");
 //        adapter.addFrag(new TwoFragment(), "TWO");
 //        adapter.addFrag(new ThreeFragment(), "THREE");
 //        adapter.addFrag(new FourFragment(), "FOUR");
