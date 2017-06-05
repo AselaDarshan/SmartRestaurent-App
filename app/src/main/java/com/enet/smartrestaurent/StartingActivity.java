@@ -64,14 +64,14 @@ public class StartingActivity extends AppCompatActivity {
     }
 
     public void newOrderButtonClicked(View v){
-        if(GlobalState.isConnected()) {
+        //if(GlobalState.isConnected()) {
             Intent intent = new Intent(this, TableSelectionActivity.class);
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-        }
-        else{
-            showError("No Connection!","Please check the connection");
-        }
+        //}
+       // else{
+         //   showError("No Connection!","Please check the connection");
+        //}
     }
 
     public void settingsButtonClicked(View v){

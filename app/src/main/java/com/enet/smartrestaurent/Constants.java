@@ -16,7 +16,7 @@ public class Constants {
     public static final String EXTENDED_DATA_STATUS = "data_status";
     public static final String COMMUNICATION_ERROR = "error";
 
-    public static final String SERVER_IP = "http://192.168.8.107";
+    public static final String SERVER_IP = "http://resmng.enetlk.com";
     public static final String API_BASE_URL = SERVER_IP+"/api/api.php/";
     public static final String IMAGE_THUMBS_URL = SERVER_IP+"/assets/images/thumbs/";
     public static final String API_MENU = "forsj3vth_menus";
