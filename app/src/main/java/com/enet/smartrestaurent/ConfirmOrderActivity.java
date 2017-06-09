@@ -1,5 +1,8 @@
 package com.enet.smartrestaurent;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,7 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -25,7 +28,9 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -38,9 +43,12 @@ public class ConfirmOrderActivity extends AppCompatActivity {
      * Some older devices needs a small delay between UI widget updates
      * and a change of the status and navigation bar.
      */
-    private JSONObject dataToSend;
+    private JSONObject dataToSendToKitchen;
+    private JSONObject dataToSendToBar;
     private SharedPreferences sharedPref;
+    private View mProgressView;
     private Receiver receiver = new Receiver();
+    private HashMap<String,OrderedItem> orderList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,11 +59,13 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         TextView tableIdText = (TextView) ConfirmOrderActivity.this.findViewById(R.id.table_id_text);
         tableIdText.setText(getIntent().getStringExtra("TABLE_ID"));
 
-        HashMap<String,Integer> orderList = (HashMap<String, Integer>) getIntent().getSerializableExtra("ORDER");
+        orderList = (HashMap<String, OrderedItem>) getIntent().getSerializableExtra("ORDER");
 
-        dataToSend = new JSONObject();
+        dataToSendToBar = new JSONObject();
+        dataToSendToKitchen = new JSONObject();
         try {
-            dataToSend.put("TABLE",tableIdText.getText());
+            dataToSendToBar.put("TABLE",tableIdText.getText());
+            dataToSendToKitchen.put("TABLE",tableIdText.getText());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -65,11 +75,16 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             // Inflate your row "template" and fill out the fields.
             TableRow row = (TableRow) LayoutInflater.from(ConfirmOrderActivity.this).inflate(R.layout.order_row, null);
             ((TextView)row.findViewById(R.id.attrib_name)).setText(key);
-            ((TextView)row.findViewById(R.id.attrib_value)).setText(String.valueOf(orderList.get(key)));
+            ((TextView)row.findViewById(R.id.attrib_value)).setText(String.valueOf(orderList.get(key).getQty()));
             table.addView(row);
 
             try {
-                dataToSend.put(key,orderList.get(key));
+                if(orderList.get(key).getPreparedIn()==Constants.KITCHEN)
+                    dataToSendToKitchen.put(key,orderList.get(key).getQty());
+                else if(orderList.get(key).getPreparedIn()==Constants.BAR){
+                    dataToSendToBar.put(key,orderList.get(key).getQty());
+
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -82,8 +97,9 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
         sharedPref = getSharedPreferences("pref",Context.MODE_PRIVATE);
 
-        IntentFilter filter = new IntentFilter(Constants.ORDER_ACTION);
+        IntentFilter filter = new IntentFilter(Constants.ORDER_RECEIVED_ACTION);
         this.registerReceiver(receiver, filter);
+
 
 //        Button confirm = (Button) findViewById(R.id.confirmButton);
 //        try {
@@ -130,6 +146,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
+        mProgressView = findViewById(R.id.login_progress);
 
     }
 
@@ -149,7 +166,24 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
     }
     public void confirmOrder(View v){
-        CommunicationService.sendToServer(this,dataToSend.toString(),Constants.ORDER_ACTION);
+        showProgress(true);
+        ((Button) v).setEnabled(false);
+        try {
+            MQTTClient mqttClient = new MQTTClient();
+
+            mqttClient.initializeMQTTClient(null, "tcp://iot.eclipse.org:1883", "app:waiter", true, false, null, null);
+
+            mqttClient.publish("new_order",0,dataToSendToKitchen.toString().getBytes());
+
+            mqttClient = new MQTTClient();
+
+            mqttClient.initializeMQTTClient(null, "tcp://iot.eclipse.org:1883", "app:waiter", true, false, null, null);
+
+            mqttClient.publish("new_order",0,dataToSendToBar.toString().getBytes());
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+//        CommunicationService.sendToServer(this,dataToSend.toString(),Constants.ORDER_RECEIVED_ACTION);
 //        try {
 //
 //
@@ -180,7 +214,10 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     }
 
     public void orderSucceed(){
+
+
         final ConfirmOrderActivity obj= this;
+        showProgress(false);
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(obj, android.R.style.Theme_Material_Dialog_Alert);
@@ -205,18 +242,58 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context arg0, Intent arg1) {
-            String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
-            Log.d("communication","Received to confirmOrderActivity: "+response);
-            if(response!=Constants.ERROR_RESPONSE)
-                orderSucceed();
-            else{
-                Log.d("communication","Received to confirmOrderActivity: error ");
-                Toast toast = Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT);
-                toast.show();
+            if(arg1.getAction().equals(Constants.ORDER_RECEIVED_ACTION)) {
+                unregisterReceiver(receiver);
+                String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
+                Log.d("communication", "Received to confirmOrderActivity: " + response);
+                if (response != Constants.ERROR_RESPONSE) {
+                    UpdateBackendIntentService.startActionSendOrderToBackend(getApplicationContext(),orderList);
+                    orderSucceed();
+//                    orderSucceed();
+                }
+                else {
+                    Log.d("communication", "Received to confirmOrderActivity: error ");
+                    Toast toast = Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
             }
         }
     }
 
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
+//            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+//            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+//                }
+//            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+//            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
 
 }

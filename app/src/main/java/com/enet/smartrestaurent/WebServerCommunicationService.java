@@ -77,12 +77,13 @@ public class WebServerCommunicationService extends IntentService {
         context.startService(intent);
     }
 
-    public static void sendJsonPostRequest(Context context, String data, String url) {
+    public static void sendJsonPostRequest(Context context, String data, String url,String action) {
         Log.d("communication_service","send json post request: "+data+" url: "+url);
         Intent intent = new Intent(context, WebServerCommunicationService.class);
         intent.setAction(ACTION_JSON_POST);
         intent.putExtra(PARAM_DATA, data);
         intent.putExtra(PARAM_URL,url);
+        intent.putExtra(ACTION_KEY,action);
         context.startService(intent);
     }
 
@@ -100,7 +101,7 @@ public class WebServerCommunicationService extends IntentService {
             if (ACTION_JSON_POST.equals(action)) {
                 try {
                     JSONObject jsonData = new JSONObject(intent.getStringExtra(PARAM_DATA));
-                    handleActionJsonPostRequest(jsonData, intent.getStringExtra(PARAM_URL),"");
+                    handleActionJsonPostRequest(jsonData, intent.getStringExtra(PARAM_URL),intent.getStringExtra(ACTION_KEY));
                 }catch (JSONException e){
                     e.printStackTrace();
                 }
@@ -175,9 +176,9 @@ public class WebServerCommunicationService extends IntentService {
         RequestQueue queue = Volley.newRequestQueue(this);
 
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, data,new Response.Listener<JSONObject>() {
+        StringRequest jsonObjectRequest = new StringRequest(Request.Method.POST, url,new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONObject response) {
+            public void onResponse(String response) {
                 //This code is executed if the server responds, whether or not the response contains data.
                 //The String 'response' contains the server's response.
                 Log.d("communication_service","http json response: "+response);
@@ -203,6 +204,10 @@ public class WebServerCommunicationService extends IntentService {
               //  params.put("Accept", "application/json");
 //                params.put("Authorization", "Bearer "+Parameters.token);
                 return params;
+            }
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return data.toString().getBytes();
             }
         };
 

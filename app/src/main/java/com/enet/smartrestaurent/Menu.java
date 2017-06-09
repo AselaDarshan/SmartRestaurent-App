@@ -20,7 +20,6 @@ public class Menu {
     public Menu(Context ctx){
         WebServerCommunicationService.sendGetRequest(ctx,Constants.API_BASE_URL+Constants.API_CATEGORIES,Constants.CATEGORIES_UPDATE_ACTION);
 
-        WebServerCommunicationService.sendGetRequest(ctx,Constants.API_BASE_URL+Constants.API_MENU,Constants.MENU_UPDATE_ACTION);
     }
 
 
@@ -54,9 +53,14 @@ public class Menu {
                 String imgurl = Constants.IMAGE_THUMBS_URL+imageName;
                 new GetImages(imgurl, imageName,ctx).execute() ;
             }
-
-            items.add(new MenuItem(item.getInt(0),item.getInt(5),item.getString(1),item.getDouble(3),imageName));
-            Log.d("adding menu item:",menuArray.getJSONArray(i).getString(1));
+            try {
+                int parentId = Category.findWithQuery(Category.class, "SELECT * from CATEGORY where CATEGORY_ID=" + String.valueOf(item.getInt(5))).get(0).parentId;
+                items.add(new MenuItem(item.getInt(0), item.getInt(5), item.getString(1), item.getDouble(3), imageName, parentId));
+                Log.d("adding menu item:", menuArray.getJSONArray(i).getString(1));
+            }
+            catch (java.lang.IndexOutOfBoundsException ex){
+                Log.d("adding menu item failed", ex.toString());
+            }
 
         }
 
@@ -69,41 +73,43 @@ public class Menu {
 
         List<Category> categoryArrayList = new ArrayList<>();
 
-        for(int i=0;i<menuArray.length();i++){
+        for(int i=0;i<menuArray.length();i++) {
             JSONArray item = menuArray.getJSONArray(i);
 
+            if (item.getInt(6) == 1) {
+                String imageName = item.getString(5);
+                Log.d("Category", "imageName: " + imageName);
+                if (imageName != null && imageName != "") {
+                    try {
+                        imageName = imageName.split("/")[1].split("\\.")[0] + "-120x120." + imageName.split("/")[1].split("\\.")[1];
+                    } catch (java.lang.ArrayIndexOutOfBoundsException ex) {
+                        imageName = "no_photo-120x120.png";
+                    }
 
-            String imageName = item.getString(5);
-            Log.d("Category","imageName: "+imageName);
-            try{
-                imageName = imageName.split("/")[1].split("\\.")[0] + "-120x120."+imageName.split("/")[1].split("\\.")[1] ;
-            }
-            catch (java.lang.ArrayIndexOutOfBoundsException ex){
-                imageName = "no_photo-120x120.png";
-            }
 
-
-            if(ImageStorage.checkifImageExists(imageName,ctx))
-            {
-                File file = ImageStorage.getImage("/"+imageName,ctx);
-                String path = file.getAbsolutePath();
-                if (path != null){
-                    Log.d("image found",path);
-                    // b = BitmapFactory.decodeFile(path);
-                    //imageView.setImageBitmap(b);
+                    if (ImageStorage.checkifImageExists(imageName, ctx)) {
+                        File file = ImageStorage.getImage("/" + imageName, ctx);
+                        String path = file.getAbsolutePath();
+                        if (path != null) {
+                            Log.d("image found", path);
+                            // b = BitmapFactory.decodeFile(path);
+                            //imageView.setImageBitmap(b);
+                        }
+                    } else {
+                        String imgurl = Constants.IMAGE_THUMBS_URL + imageName;
+                        new GetImages(imgurl, imageName, ctx).execute();
+                    }
                 }
-            } else {
-                String imgurl = Constants.IMAGE_THUMBS_URL+imageName;
-                new GetImages(imgurl, imageName,ctx).execute() ;
+                categoryArrayList.add(new Category(item.getInt(0), item.getString(1), imageName, item.getInt(3)));
+                Log.d("adding category", item.getInt(0) + ":" + item.getString(1));
             }
-
-
-            categoryArrayList.add(new Category(item.getInt(0),item.getString(1),imageName));
-            Log.d("adding category",item.getInt(0)+":"+item.getString(1));
         }
+            Category.deleteAll(Category.class);
+            Category.saveInTx(categoryArrayList);
 
-        Category.deleteAll(Category.class);
-        Category.saveInTx(categoryArrayList);
+            WebServerCommunicationService.sendGetRequest(ctx,Constants.API_BASE_URL+Constants.API_MENU,Constants.MENU_UPDATE_ACTION);
+
+//        }
     }
 
 }

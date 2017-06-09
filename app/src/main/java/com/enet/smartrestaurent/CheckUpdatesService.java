@@ -61,14 +61,38 @@ public class CheckUpdatesService extends IntentService {
      * parameters.
      */
     private void handleActionCheckUpdates(String action, String param2) {
-        while (true) {
-            CommunicationService.sendToServer(this, "updates", Constants.CHECKUPDATES_ACTION);
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//        while (true) {
+//            CommunicationService.sendToServer(this, "updates", Constants.CHECKUPDATES_ACTION);
+//            try {
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        try {
+            MQTTClient mqttClient = new MQTTClient();
+
+            mqttClient.initializeMQTTClient(this,"tcp://iot.eclipse.org:1883", "app:waiter:publish", true, false, null, null);
+            mqttClient.subscribe(Constants.ORDER_COMPLETED_TOPIC,Constants.ORDER_RECEIVED_TOPIC,0);
+//            mqttClient.subscribe(,0);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
         }
+    }
+
+    public void messgeRecived(String message, String topic){
+        Intent intent = new Intent();
+        intent.putExtra(Constants.RESPONSE_KEY, message);
+        if(topic.equals(Constants.ORDER_RECEIVED_TOPIC)){
+            intent.setAction(Constants.ORDER_RECEIVED_ACTION);
+        }
+        else if(topic.equals(Constants.ORDER_COMPLETED_TOPIC)) {
+
+            intent.setAction(Constants.CHECKUPDATES_ACTION);
+
+
+        }
+        sendBroadcast(intent);
     }
 
 

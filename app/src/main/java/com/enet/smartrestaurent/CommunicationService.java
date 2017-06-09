@@ -210,7 +210,7 @@ public class CommunicationService extends IntentService {
 
                     try {
                         if (serverMsg.contains("order_success"))
-                            action = Constants.ORDER_ACTION;
+                            action = Constants.ORDER_RECEIVED_ACTION;
                         else if (serverMsg.contains("Ready!"))
                             action = Constants.CHECKUPDATES_ACTION;
                         else

@@ -12,6 +12,7 @@ public class MenuItem extends SugarRecord<MenuItem> {
     String name;
     double price;
     String imageName;
+    int prepearedIn;
 
     public MenuItem()
     {
@@ -20,13 +21,15 @@ public class MenuItem extends SugarRecord<MenuItem> {
         this.name = "name";
         this.price = 0.0;
         this.imageName ="";
+        this.prepearedIn = 0;
     }
 
-    public MenuItem(int id,int category,String name, double price,String imageName) {
+    public MenuItem(int id,int category,String name, double price,String imageName,int prepearedIn) {
         this.name = name;
         this.price = price;
         this.id = id;
         this.category = category;
         this.imageName = imageName;
+        this.prepearedIn = prepearedIn;
     }
 }
