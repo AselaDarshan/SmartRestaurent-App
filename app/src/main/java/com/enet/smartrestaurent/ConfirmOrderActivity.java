@@ -68,6 +68,8 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         try {
             dataToSendToBar.put("TABLE",tableIdText.getText());
             dataToSendToKitchen.put("TABLE",tableIdText.getText());
+            dataToSendToBar.put("WAITER",GlobalState.getCurrentUsername());
+            dataToSendToKitchen.put("WAITER",GlobalState.getCurrentUsername());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -185,18 +187,18 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
         try {
             MQTTClient mqttClient = new MQTTClient();
-            if(dataToSendToKitchen.length()>0) {
+            if(dataToSendToKitchen.length()>2) {
 
 
-                mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter", false, false, null, null);
+                mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter"+GlobalState.getCurrentUsername(), false, false, null, null);
 
                 mqttClient.publish("new_order", 2, dataToSendToKitchen.toString().getBytes());
 
             }
-            else  if(dataToSendToBar.length()>0) {
+            if(dataToSendToBar.length()>2) {
                 mqttClient = new MQTTClient();
 
-                mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter", false, false, null, null);
+                mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter"+GlobalState.getCurrentUsername(), false, false, null, null);
 
                 mqttClient.publish("new_order", 2, dataToSendToBar.toString().getBytes());
             }

@@ -151,7 +151,7 @@ public class StartingActivity extends AppCompatActivity {
                 if (response != null && !response.contains(Constants.ERROR_RESPONSE)) {
                     Log.d("update Received", "Received to startingActivity: " + response);
                     String topic = response.split("~")[0];
-                    if(topic.equals(Constants.ORDER_COMPLETED_TOPIC))
+                    if(topic.contains(Constants.ORDER_COMPLETED_TOPIC))
                         showMesage(response.split("~")[1]);
 
                 } else {

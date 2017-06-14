@@ -13,5 +13,5 @@
     <string name="title_activity_settings">SettingsActivity</string>
 
     <string name="ip_key">IP</string>
-
+    <string name="prompt">Select your username</string>
 </resources>

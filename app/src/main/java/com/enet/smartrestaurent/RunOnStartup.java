@@ -12,7 +12,7 @@ public class RunOnStartup  extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            Intent i = new Intent(context, StartingActivity.class);
+            Intent i = new Intent(context, LoginActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }
