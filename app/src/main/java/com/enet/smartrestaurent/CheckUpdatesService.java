@@ -3,6 +3,7 @@ package com.enet.smartrestaurent;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.util.Log;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -21,6 +22,8 @@ public class CheckUpdatesService extends IntentService {
     private static final String EXTRA_PARAM1 = "com.enet.smartrestaurent.extra.PARAM1";
     private static final String EXTRA_PARAM2 = "com.enet.smartrestaurent.extra.PARAM2";
 
+    private static Intent intent;
+
     public CheckUpdatesService() {
         super("CheckUpdatesService");
     }
@@ -32,12 +35,17 @@ public class CheckUpdatesService extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startActionUpdateCheck(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, CheckUpdatesService.class);
+    public static void startActionUpdateCheck(Context context) {
+        intent = new Intent(context, CheckUpdatesService.class);
         intent.setAction(ACTION_FOO);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
+//        intent.putExtra(EXTRA_PARAM1, param1);
+//        intent.putExtra(EXTRA_PARAM2, param2);
         context.startService(intent);
+
+    }
+
+    public static void stopActionUpdateCheck(Context context) {
+        context.stopService(intent);
     }
 
 
@@ -47,9 +55,9 @@ public class CheckUpdatesService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_FOO.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionCheckUpdates(param1, param2);
+//                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
+//                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
+                handleActionCheckUpdates();
             } else if (ACTION_BAZ.equals(action)) {
 
             }
@@ -60,7 +68,7 @@ public class CheckUpdatesService extends IntentService {
      * Handle action Foo in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionCheckUpdates(String action, String param2) {
+    private void handleActionCheckUpdates() {
 //        while (true) {
 //            CommunicationService.sendToServer(this, "updates", Constants.CHECKUPDATES_ACTION);
 //            try {
@@ -74,26 +82,13 @@ public class CheckUpdatesService extends IntentService {
 
             mqttClient.initializeMQTTClient(this.getBaseContext(),"tcp://iot.eclipse.org:1883", "app:waiter:publish", false, false, null, null);
             mqttClient.subscribe(Constants.ORDER_COMPLETED_TOPIC,Constants.ORDER_RECEIVED_TOPIC,2);
-//            mqttClient.subscribe(,0);
         } catch (Throwable throwable) {
+            Log.d("mqtt","exception on subscribe");
             throwable.printStackTrace();
         }
     }
 
-    public void messgeRecived(String message, String topic){
-        Intent intent = new Intent();
-        intent.putExtra(Constants.RESPONSE_KEY, message);
-        if(topic.equals(Constants.ORDER_RECEIVED_TOPIC)){
-            intent.setAction(Constants.ORDER_RECEIVED_ACTION);
-        }
-        else if(topic.equals(Constants.ORDER_COMPLETED_TOPIC)) {
 
-            intent.setAction(Constants.CHECKUPDATES_ACTION);
-
-
-        }
-        sendBroadcast(intent);
-    }
 
 
 

@@ -34,8 +34,8 @@ public class StartingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_starting);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_starting);
 
         getSupportActionBar().setTitle(Html.fromHtml("<font color=#8B0000>Silver Ring Village Hotel</font>"));
@@ -43,16 +43,18 @@ public class StartingActivity extends AppCompatActivity {
         IntentFilter mqttIntentFilter = new IntentFilter(Constants.MQTT_NEW_MESSAGE_ACTION);
         IntentFilter menuUpdateIntentFilter = new IntentFilter(Constants.MENU_UPDATE_ACTION);
         IntentFilter categoriesUpdateIntentFilter = new IntentFilter(Constants.CATEGORIES_UPDATE_ACTION);
+        IntentFilter mqttConnectionIntentFilter = new IntentFilter(Constants.MQTT_CONNECTION_STATE_ACTION);
         this.registerReceiver(receiver,mqttIntentFilter);
         this.registerReceiver(receiver, menuUpdateIntentFilter);
         this.registerReceiver(receiver, categoriesUpdateIntentFilter);
+        this.registerReceiver(receiver, mqttConnectionIntentFilter);
 
         
 
         menu = new Menu(this);
 
 
-      CheckUpdatesService.startActionUpdateCheck(this,"","");
+      CheckUpdatesService.startActionUpdateCheck(this);
 
 
     }
@@ -64,14 +66,14 @@ public class StartingActivity extends AppCompatActivity {
     }
 
     public void newOrderButtonClicked(View v){
-        //if(GlobalState.isConnected()) {
+        if(GlobalState.isConnected()) {
             Intent intent = new Intent(this, TableSelectionActivity.class);
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-        //}
-       // else{
-         //   showError("No Connection!","Please check the connection");
-        //}
+        }
+        else{
+            showError("Not Connected!","Please check the WiFi connection");
+        }
     }
     public void activeOrdersButtonClicked(View v){
 
@@ -120,9 +122,10 @@ public class StartingActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
+            String action = arg1.getAction();
             Log.d("broadcast_received:",arg1.getAction());
 
-            if(arg1.getAction().equals(Constants.MENU_UPDATE_ACTION)){
+            if(action.equals(Constants.MENU_UPDATE_ACTION)){
                 try {
                     JSONObject jObject = new JSONObject(response);
                     menu.updateMenuItems(getApplicationContext(),jObject);
@@ -133,7 +136,7 @@ public class StartingActivity extends AppCompatActivity {
                 }
 
             }
-            else if(arg1.getAction().equals(Constants.CATEGORIES_UPDATE_ACTION)){
+            else if(action.equals(Constants.CATEGORIES_UPDATE_ACTION)){
                 try {
                     JSONObject jObject = new JSONObject(response);
                     menu.updateCategories(getApplicationContext(),jObject);
@@ -144,7 +147,7 @@ public class StartingActivity extends AppCompatActivity {
                 }
 
             }
-            else if(arg1.getAction().equals(Constants.MQTT_NEW_MESSAGE_ACTION)){
+            else if(action.equals(Constants.MQTT_NEW_MESSAGE_ACTION)){
                 if (response != null && !response.contains(Constants.ERROR_RESPONSE)) {
                     Log.d("update Received", "Received to startingActivity: " + response);
                     String topic = response.split("~")[0];
@@ -156,6 +159,22 @@ public class StartingActivity extends AppCompatActivity {
                     Log.d("communication", "Received to startingActivity: error ");
                     Toast toast = Toast.makeText(getApplicationContext(), "Connection failed!", Toast.LENGTH_SHORT);
                     toast.show();
+                }
+            }else if(action.equals(Constants.MQTT_CONNECTION_STATE_ACTION)){
+                if (response != null && response.equals(Constants.MQTT_CONNECTION_SUCCESS)) {
+                    GlobalState.setConnected(true);
+                }
+                else if (response != null && response.equals(Constants.MQTT_CONNECTION_FAILED)){
+                    GlobalState.setConnected(false);
+                    CheckUpdatesService.stopActionUpdateCheck(getBaseContext());
+                    CheckUpdatesService.startActionUpdateCheck(getBaseContext());
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Log.d("mqtt", "Connection failed! reconnecting.. ");
+//                    Toast.makeText(getApplicationContext(), "Connection failed! Reconnecting..", Toast.LENGTH_SHORT).show();
                 }
             }
 

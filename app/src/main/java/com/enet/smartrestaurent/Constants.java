@@ -15,6 +15,7 @@ public class Constants {
     public static final String MQTT_ACTION = "mqtt_action";
     public static final String MQTT_PUBLISH_STATE_ACTION = "mqtt_publish_state";
     public static final String MQTT_CONNECTION_STATE_ACTION = "mqtt_connection_state";
+    public static final String MQTT_DISCONNECTED_ACTION = "mqtt_connection_state";
     public static final String MQTT_CONNECTION_FAILED = "mqtt_connection_failed";
     public static final String MQTT_CONNECTION_SUCCESS = "mqtt_connection_success";
     public static final String MQTT_DELIVER_SUCCESS = "mqtt_deliver_success";

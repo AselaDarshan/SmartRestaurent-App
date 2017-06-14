@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableRow  xmlns:android="http://schemas.android.com/apk/res/android">
+<TableRow  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent">
     <TextView
         android:id="@+id/attrib_name"
         android:layout_width="match_parent"
+        android:textStyle="bold"
         android:textSize="20sp"
         />
     <TextView
         android:id="@+id/attrib_value"
-        android:layout_marginLeft="30dp"
+        android:layout_marginLeft="50dp"
         android:layout_width="match_parent"
         android:textSize="20sp"
         android:gravity="center_horizontal"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:layout_gravity="right" />
 </TableRow>

@@ -306,6 +306,8 @@ public class MQTTClient implements MqttCallback {
         // logic at this point. This sample simply exits.
         log("Connection to " + brokerUrl + " lost!" + cause);
 
+        if(cause.getMessage().contains("java.net.SocketException"))
+            internalBroadcast(Constants.MQTT_CONNECTION_STATE_ACTION,Constants.MQTT_CONNECTION_FAILED);
        // System.exit(1);
     }
 

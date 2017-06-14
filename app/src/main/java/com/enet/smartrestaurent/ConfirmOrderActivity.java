@@ -28,6 +28,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
@@ -53,8 +54,8 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_confirm_order);
 
         TextView tableIdText = (TextView) ConfirmOrderActivity.this.findViewById(R.id.table_id_text);
@@ -71,12 +72,14 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         TableLayout table = (TableLayout)ConfirmOrderActivity.this.findViewById(R.id.order_table);
+        DecimalFormat decim = new DecimalFormat("0.00");
         for(String key : orderList.keySet())
         {
+            OrderedItem item = orderList.get(key);
             // Inflate your row "template" and fill out the fields.
             TableRow row = (TableRow) LayoutInflater.from(ConfirmOrderActivity.this).inflate(R.layout.order_row, null);
             ((TextView)row.findViewById(R.id.attrib_name)).setText(key);
-            ((TextView)row.findViewById(R.id.attrib_value)).setText(String.valueOf(orderList.get(key).getQty()));
+            ((TextView)row.findViewById(R.id.attrib_value)).setText(decim.format(item.getPrice())+" x "+item.getQty()+" = "+decim.format(item.getPrice()*item.getQty()));
             table.addView(row);
 
             try {
@@ -98,10 +101,8 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
         sharedPref = getSharedPreferences("pref",Context.MODE_PRIVATE);
 
-        IntentFilter filter = new IntentFilter(Constants.MQTT_PUBLISH_STATE_ACTION);
-        IntentFilter filter1 = new IntentFilter(Constants.MQTT_CONNECTION_STATE_ACTION);
-        this.registerReceiver(receiver, filter);
-        this.registerReceiver(receiver, filter1);
+
+
 
 
         confirmButton = (Button) findViewById(R.id.confirmButton);
@@ -176,6 +177,12 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     public void confirmOrder(View v){
         showProgress(true);
         confirmButton.setEnabled(false);
+
+        IntentFilter filter = new IntentFilter(Constants.MQTT_PUBLISH_STATE_ACTION);
+        IntentFilter filter1 = new IntentFilter(Constants.MQTT_CONNECTION_STATE_ACTION);
+        this.registerReceiver(receiver, filter);
+        this.registerReceiver(receiver, filter1);
+
         try {
             MQTTClient mqttClient = new MQTTClient();
             if(dataToSendToKitchen.length()>0) {
@@ -251,12 +258,17 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 .show();
     }
 
+    protected void unregisterReceiver(){
+        this.unregisterReceiver(receiver);
+    }
+
     private class Receiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             showProgress(false);
             confirmButton.setEnabled(true);
+
             if(arg1.getAction().equals(Constants.MQTT_PUBLISH_STATE_ACTION)) {
 //                unregisterReceiver(receiver);
                 String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);

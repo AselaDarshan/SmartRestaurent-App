@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name="com.orm.SugarApp"
@@ -69,6 +70,20 @@
             android:exported="false" />
 
         <activity android:name=".ActiveOrdersActivity"></activity>
+
+        <receiver
+            android:enabled="true"
+            android:exported="true"
+            android:name="com.enet.smartrestaurent.RunOnStartup"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </receiver>
     </application>
 
 </manifest>

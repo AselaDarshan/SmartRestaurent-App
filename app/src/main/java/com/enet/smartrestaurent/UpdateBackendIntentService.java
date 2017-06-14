@@ -155,7 +155,7 @@ public class UpdateBackendIntentService extends IntentService {
         public void onReceive(Context arg0, Intent arg1) {
             if (arg1.getAction().equals(Constants.ADD_ORDER_ACTION)) {
                 int orderId = Integer.parseInt(arg1.getExtras().getString(Constants.RESPONSE_KEY));
-                Toast.makeText(getApplicationContext(), arg1.getExtras().getString(Constants.RESPONSE_KEY), Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(getApplicationContext(), arg1.getExtras().getString(Constants.RESPONSE_KEY), Toast.LENGTH_SHORT).show();
                 startActionSendOrderMenusToBackend(getApplicationContext(),orderId,orderdItems);
                 responseRecieved = true;
             }
