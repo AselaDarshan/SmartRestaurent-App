@@ -71,6 +71,7 @@
 
         <activity android:name=".ActiveOrdersActivity"></activity>
 
+
         <receiver
             android:enabled="true"
             android:exported="true"
