@@ -49,6 +49,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     private View mProgressView;
     private Receiver receiver = new Receiver();
     private HashMap<String,OrderedItem> orderList;
+    private Button confirmButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,11 +98,13 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
         sharedPref = getSharedPreferences("pref",Context.MODE_PRIVATE);
 
-        IntentFilter filter = new IntentFilter(Constants.ORDER_RECEIVED_ACTION);
+        IntentFilter filter = new IntentFilter(Constants.MQTT_PUBLISH_STATE_ACTION);
+        IntentFilter filter1 = new IntentFilter(Constants.MQTT_CONNECTION_STATE_ACTION);
         this.registerReceiver(receiver, filter);
+        this.registerReceiver(receiver, filter1);
 
 
-//        Button confirm = (Button) findViewById(R.id.confirmButton);
+        confirmButton = (Button) findViewById(R.id.confirmButton);
 //        try {
 //            confirm.setOnClickListener(new View.OnClickListener() {
 //
@@ -162,24 +165,34 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        this.unregisterReceiver(receiver);
+        try {
+            this.unregisterReceiver(receiver);
+        }
+        catch (java.lang.IllegalArgumentException e){
+
+        }
 
     }
     public void confirmOrder(View v){
         showProgress(true);
-        ((Button) v).setEnabled(false);
+        confirmButton.setEnabled(false);
         try {
             MQTTClient mqttClient = new MQTTClient();
+            if(dataToSendToKitchen.length()>0) {
 
-            mqttClient.initializeMQTTClient(null, "tcp://iot.eclipse.org:1883", "app:waiter", true, false, null, null);
 
-            mqttClient.publish("new_order",0,dataToSendToKitchen.toString().getBytes());
+                mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter", false, false, null, null);
 
-            mqttClient = new MQTTClient();
+                mqttClient.publish("new_order", 2, dataToSendToKitchen.toString().getBytes());
 
-            mqttClient.initializeMQTTClient(null, "tcp://iot.eclipse.org:1883", "app:waiter", true, false, null, null);
+            }
+            else  if(dataToSendToBar.length()>0) {
+                mqttClient = new MQTTClient();
 
-            mqttClient.publish("new_order",0,dataToSendToBar.toString().getBytes());
+                mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter", false, false, null, null);
+
+                mqttClient.publish("new_order", 2, dataToSendToBar.toString().getBytes());
+            }
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
@@ -242,19 +255,36 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context arg0, Intent arg1) {
-            if(arg1.getAction().equals(Constants.ORDER_RECEIVED_ACTION)) {
-                unregisterReceiver(receiver);
+            showProgress(false);
+            confirmButton.setEnabled(true);
+            if(arg1.getAction().equals(Constants.MQTT_PUBLISH_STATE_ACTION)) {
+//                unregisterReceiver(receiver);
                 String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
-                Log.d("communication", "Received to confirmOrderActivity: " + response);
-                if (response != Constants.ERROR_RESPONSE) {
+                Log.d("mqtt", "Received to confirmOrderActivity: " + response);
+                if (response != null && response.equals(Constants.MQTT_DELIVER_SUCCESS)) {
                     UpdateBackendIntentService.startActionSendOrderToBackend(getApplicationContext(),orderList);
                     orderSucceed();
 //                    orderSucceed();
                 }
+                else if(response != null && response.equals(Constants.MQTT_PUBLISH_FAILED)){
+                    Log.d("mqtt", "Received to confirmOrderActivity: error ");
+                    Toast toast = Toast.makeText(getApplicationContext(), "Can't place the order due to connection error!", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
                 else {
-                    Log.d("communication", "Received to confirmOrderActivity: error ");
+                    Log.d("mqtt", "Received to confirmOrderActivity: error ");
                     Toast toast = Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT);
                     toast.show();
+                }
+            }
+            else if(arg1.getAction().equals(Constants.MQTT_CONNECTION_STATE_ACTION)) {
+                String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
+                Log.d("mqtt", "Received to confirmOrderActivity: " + response);
+                if (response != null && response.equals(Constants.MQTT_CONNECTION_FAILED)) {
+                    Log.d("mqtt", "mqtt connection failed");
+                    Toast toast = Toast.makeText(getApplicationContext(), "Can't place the order due to connection error!", Toast.LENGTH_SHORT);
+                    toast.show();
+
                 }
             }
         }
@@ -264,7 +294,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
+    protected void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.

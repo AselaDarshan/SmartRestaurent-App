@@ -17,6 +17,7 @@
 package com.enet.smartrestaurent;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 
 import java.io.IOException;
@@ -85,6 +86,7 @@ public class MQTTClient implements MqttCallback {
     private String password;
     private String userName;
     CheckUpdatesService checkUpdatesService;
+    private Context context;
 //    public MQTTClient() {
 //        super("CommunicationService");
 //    }
@@ -104,7 +106,7 @@ public class MQTTClient implements MqttCallback {
     /**
      * Constructs an instance of the sample client wrapper
      *
-     * @param checkUpdatesService
+     * @param context
      * @param brokerUrl the url to connect to
      * @param clientId the client id to connect with
      * @param cleanSession clear state at end of connection or not (durable or non-durable subscriptions)
@@ -113,16 +115,17 @@ public class MQTTClient implements MqttCallback {
      * @param password the password for the user
      * @throws MqttException
      */
-    public void initializeMQTTClient(CheckUpdatesService checkUpdatesService, String brokerUrl, String clientId, boolean cleanSession,
+    public void initializeMQTTClient(Context context, String brokerUrl, String clientId, boolean cleanSession,
                                      boolean quietMode, String userName, String password) throws MqttException {
 
+        this.context = context;
         this.brokerUrl = brokerUrl;
         this.quietMode = quietMode;
         this.clean 	   = cleanSession;
         this.password = password;
         this.userName = userName;
         this.checkUpdatesService = checkUpdatesService;
-        clientId+= randomString(5);
+       // clientId+= randomString(5);
         //This sample stores in a temporary directory... where messages temporarily
         // stored until the message has been delivered to the server.
         //..a real application ought to store them somewhere
@@ -325,8 +328,17 @@ public class MQTTClient implements MqttCallback {
         // note that token.getTopics() returns an array so we convert to a string
         // before printing it on the console
         log("Delivery complete callback: Publish Completed "+Arrays.toString(token.getTopics()));
+
+            internalBroadcast(Constants.MQTT_PUBLISH_STATE_ACTION,Constants.MQTT_DELIVER_SUCCESS);
+
     }
 
+    public void internalBroadcast(String action,String message){
+        Intent intent = new Intent();
+        intent.setAction(action);
+        intent.putExtra(Constants.RESPONSE_KEY, message);
+        context.sendBroadcast(intent);
+    }
     /**
      * @see MqttCallback#messageArrived(String, MqttMessage)
      */
@@ -345,8 +357,8 @@ public class MQTTClient implements MqttCallback {
 //            intent.setAction(Constants.CHECKUPDATES_ACTION);
 //            intent.putExtra(Constants.RESPONSE_KEY,  new String(message.getPayload()));
 //            sendBroadcast(intent);
-            checkUpdatesService.messgeRecived(new String(message.getPayload()),topic);
-
+//            checkUpdatesService.messgeRecived(new String(message.getPayload()),topic);
+                internalBroadcast(Constants.MQTT_NEW_MESSAGE_ACTION,topic+"~"+new String(message.getPayload()));
 
     }
 
@@ -371,6 +383,7 @@ public class MQTTClient implements MqttCallback {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     log("Connected");
                     state = CONNECTED;
+                    internalBroadcast(Constants.MQTT_CONNECTION_STATE_ACTION,Constants.MQTT_CONNECTION_SUCCESS);
                     carryOn();
                 }
 
@@ -378,6 +391,7 @@ public class MQTTClient implements MqttCallback {
                     ex = exception;
                     state = ERROR;
                     log ("connect failed" +exception);
+                    internalBroadcast(Constants.MQTT_CONNECTION_STATE_ACTION,Constants.MQTT_CONNECTION_FAILED);
                     carryOn();
                 }
 
@@ -396,6 +410,7 @@ public class MQTTClient implements MqttCallback {
                 // If though it is a non-blocking connect an exception can be
                 // thrown if validation of parms fails or other checks such
                 // as already connected fail.
+                internalBroadcast(Constants.MQTT_CONNECTION_STATE_ACTION,Constants.MQTT_CONNECTION_FAILED);
                 state = ERROR;
                 donext = true;
                 ex = e;
@@ -432,6 +447,7 @@ public class MQTTClient implements MqttCallback {
                     ex = exception;
                     state = ERROR;
                     log ("Publish failed" +exception);
+                    internalBroadcast(Constants.MQTT_PUBLISH_STATE_ACTION,Constants.MQTT_PUBLISH_FAILED);
                     carryOn();
                 }
 

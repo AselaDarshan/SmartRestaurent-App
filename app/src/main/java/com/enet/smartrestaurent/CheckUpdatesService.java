@@ -72,8 +72,8 @@ public class CheckUpdatesService extends IntentService {
         try {
             MQTTClient mqttClient = new MQTTClient();
 
-            mqttClient.initializeMQTTClient(this,"tcp://iot.eclipse.org:1883", "app:waiter:publish", true, false, null, null);
-            mqttClient.subscribe(Constants.ORDER_COMPLETED_TOPIC,Constants.ORDER_RECEIVED_TOPIC,0);
+            mqttClient.initializeMQTTClient(this.getBaseContext(),"tcp://iot.eclipse.org:1883", "app:waiter:publish", false, false, null, null);
+            mqttClient.subscribe(Constants.ORDER_COMPLETED_TOPIC,Constants.ORDER_RECEIVED_TOPIC,2);
 //            mqttClient.subscribe(,0);
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -94,6 +94,8 @@ public class CheckUpdatesService extends IntentService {
         }
         sendBroadcast(intent);
     }
+
+
 
 
 }

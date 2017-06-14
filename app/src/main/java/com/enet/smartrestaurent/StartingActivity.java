@@ -40,10 +40,10 @@ public class StartingActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(Html.fromHtml("<font color=#8B0000>Silver Ring Village Hotel</font>"));
 
-        IntentFilter checkUpdateIntentfilter = new IntentFilter(Constants.CHECKUPDATES_ACTION);
+        IntentFilter mqttIntentFilter = new IntentFilter(Constants.MQTT_NEW_MESSAGE_ACTION);
         IntentFilter menuUpdateIntentFilter = new IntentFilter(Constants.MENU_UPDATE_ACTION);
         IntentFilter categoriesUpdateIntentFilter = new IntentFilter(Constants.CATEGORIES_UPDATE_ACTION);
-        this.registerReceiver(receiver,checkUpdateIntentfilter);
+        this.registerReceiver(receiver,mqttIntentFilter);
         this.registerReceiver(receiver, menuUpdateIntentFilter);
         this.registerReceiver(receiver, categoriesUpdateIntentFilter);
 
@@ -144,11 +144,12 @@ public class StartingActivity extends AppCompatActivity {
                 }
 
             }
-            else {
+            else if(arg1.getAction().equals(Constants.MQTT_NEW_MESSAGE_ACTION)){
                 if (response != null && !response.contains(Constants.ERROR_RESPONSE)) {
                     Log.d("update Received", "Received to startingActivity: " + response);
-
-                    showMesage(response);
+                    String topic = response.split("~")[0];
+                    if(topic.equals(Constants.ORDER_COMPLETED_TOPIC))
+                        showMesage(response.split("~")[1]);
 
                 } else {
 
