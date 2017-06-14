@@ -73,7 +73,12 @@ public class StartingActivity extends AppCompatActivity {
          //   showError("No Connection!","Please check the connection");
         //}
     }
+    public void activeOrdersButtonClicked(View v){
 
+        Intent intent = new Intent(this, ActiveOrdersActivity.class);
+        startActivity(intent);
+
+    }
     public void settingsButtonClicked(View v){
         Intent intent = new Intent(this, SettingsActivity.class);
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

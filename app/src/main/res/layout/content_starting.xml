@@ -48,7 +48,8 @@
         android:textColor="@color/colorAccent"
         android:layout_alignParentStart="true"
         android:layout_margin="10dp"
-        style="@style/ButtonStyle" />
+        style="@style/ButtonStyle"
+        android:onClick="activeOrdersButtonClicked" />
     <Button
         android:layout_width="match_parent"
         android:layout_height="58sp"
