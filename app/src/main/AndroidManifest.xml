@@ -19,7 +19,7 @@
             android:value="sugar_example.db" />
         <meta-data
             android:name="VERSION"
-            android:value="23" />
+            android:value="26" />
         <meta-data
             android:name="QUERY_LOG"
             android:value="true" />
@@ -65,7 +65,9 @@
             android:name=".UpdateBackendIntentService"
             android:exported="false" />
 
-        <activity android:name=".ActiveOrdersActivity" />
+        <activity android:name=".ActiveOrdersActivity"
+            android:label="Active Orders"
+            android:theme="@style/FullscreenTheme" />
 
         <receiver
             android:name=".RunOnStartup"

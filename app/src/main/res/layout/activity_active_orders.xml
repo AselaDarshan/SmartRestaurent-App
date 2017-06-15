@@ -10,4 +10,12 @@
     tools:context="com.enet.smartrestaurent.ActiveOrdersActivity"
     android:background="@color/windowBackground">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
+
 </RelativeLayout>

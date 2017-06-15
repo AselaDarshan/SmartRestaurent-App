@@ -29,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
@@ -51,6 +52,8 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     private Receiver receiver = new Receiver();
     private HashMap<String,OrderedItem> orderList;
     private Button confirmButton;
+
+    private String tableId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +62,8 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_confirm_order);
 
         TextView tableIdText = (TextView) ConfirmOrderActivity.this.findViewById(R.id.table_id_text);
-        tableIdText.setText(getIntent().getStringExtra("TABLE_ID"));
+        tableId = getIntent().getStringExtra("TABLE_ID");
+        tableIdText.setText(tableId);
 
         orderList = (HashMap<String, OrderedItem>) getIntent().getSerializableExtra("ORDER");
 
@@ -237,6 +241,11 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
     public void orderSucceed(){
 
+
+//        ArrayList<String> itemList = new ArrayList<>();
+//        itemList.add(orderList.keySet().toArray()[0].toString());
+        ActiveOrder activeOrder = new ActiveOrder(tableId);
+        activeOrder.save();
 
         final ConfirmOrderActivity obj= this;
         showProgress(false);
