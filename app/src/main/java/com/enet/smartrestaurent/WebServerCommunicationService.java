@@ -236,6 +236,7 @@ public class WebServerCommunicationService extends IntentService {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
+                        broadcast(Constants.COMMUNICATION_ERROR,action);
                     }
                 }
         );

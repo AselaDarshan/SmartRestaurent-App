@@ -24,6 +24,8 @@ public class Constants {
 
     public static final String MENU_UPDATE_ACTION = "menu_update_action";
     public static final String CATEGORIES_UPDATE_ACTION = "categories_update_action";
+    public static final String ORDERS_UPDATE_ACTION = "orders_update_action";
+    public static final String WAITER_LIST_RETRIVE_ACTION = "waiter_list_retrieve_action";
     public static final String EXTENDED_DATA_STATUS = "data_status";
     public static final String COMMUNICATION_ERROR = "error";
 
@@ -32,6 +34,10 @@ public class Constants {
     public static final String IMAGE_THUMBS_URL = SERVER_IP+"/assets/images/thumbs/";
     public static final String API_MENU = "forsj3vth_menus";
     public static final String API_CATEGORIES = "forsj3vth_categories";
+    public static final String API_STAFF = "forsj3vth_staffs";
+    public static final String API_ORDER_MENUS = "forsj3vth_order_menus";
+
+
     public static final String RECORDS_KEY = "records";
 
     public static final String ORDER_RECEIVED_TOPIC = "silver_ring_order_received";
@@ -43,5 +49,5 @@ public class Constants {
 
     public static final int KITCHEN = 12;
     public static final int BAR = 13;
-
+    public static final int WAITER_GROUP_ID = 13;
 }

@@ -10,6 +10,16 @@ public class GlobalState extends Application {
     private static GlobalState singleton;
     private static boolean connected = false;
 
+    public static int getCurrrentUserId() {
+        return currrentUserId;
+    }
+
+    public static void setCurrrentUserId(int currrentUserId) {
+        GlobalState.currrentUserId = currrentUserId;
+    }
+
+    private static int currrentUserId;
+
     public static String getCurrentUsername() {
         return currentUsername;
     }

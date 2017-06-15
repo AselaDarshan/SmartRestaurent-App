@@ -29,6 +29,7 @@ public class UpdateBackendIntentService extends IntentService {
     private static final String ACTION_ORDER_MENUS = "com.enet.smartrestaurent.action.order_menus";
 
     private Receiver receiver = new Receiver();
+
 //    // TODO: Rename parameters
 //    private static final String EXTRA_PARAM1 = "com.enet.smartrestaurent.extra.PARAM1";
 //    private static final String EXTRA_PARAM2 = "com.enet.smartrestaurent.extra.PARAM2";
@@ -44,10 +45,11 @@ public class UpdateBackendIntentService extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startActionSendOrderToBackend(Context context,HashMap<String,OrderedItem> order) {
+    public static void startActionSendOrderToBackend(Context context,HashMap<String,OrderedItem> order,int tableId) {
         Intent intent = new Intent(context, UpdateBackendIntentService.class);
         intent.setAction(ACTION_ORDER);
         intent.putExtra("ORDER", order);
+        intent.putExtra("TABLE_ID", tableId);
 //        intent.putExtra(EXTRA_PARAM2, param2);
         context.startService(intent);
     }
@@ -59,11 +61,12 @@ public class UpdateBackendIntentService extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startActionSendOrderMenusToBackend(Context context,int orderId,HashMap<String,OrderedItem> order) {
+    public static void startActionSendOrderMenusToBackend(Context context,int orderId,HashMap<String,OrderedItem> order,int tableId) {
         Intent intent = new Intent(context, UpdateBackendIntentService.class);
         intent.setAction(ACTION_ORDER_MENUS);
         intent.putExtra("ORDER", order);
         intent.putExtra("ORDER_ID", orderId);
+        intent.putExtra("TABLE_ID", tableId);
         context.startService(intent);
     }
 
@@ -75,18 +78,21 @@ public class UpdateBackendIntentService extends IntentService {
             if (ACTION_ORDER.equals(action)) {
                 final HashMap<String, OrderedItem> orderList = (HashMap<String, OrderedItem>)intent.getSerializableExtra("ORDER");
 //                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionSendOrderToBackend(orderList);
+                final int tableId = intent.getIntExtra("TABLE_ID",0);
+                handleActionSendOrderToBackend(orderList,tableId);
             } else if (ACTION_ORDER_MENUS.equals(action)) {
                 final HashMap<String, OrderedItem> orderList = (HashMap<String, OrderedItem>)intent.getSerializableExtra("ORDER");
 //
                 final int orderId = intent.getIntExtra("ORDER_ID",0);
-                handleActionSendOrderMenusToBackend(orderId,orderList);
+                final int tableId = intent.getIntExtra("TABLE_ID",0);
+                handleActionSendOrderMenusToBackend(orderId,orderList,tableId);
             }
         }
     }
     private HashMap<String,OrderedItem> orderdItems;
+    private int tableID;
     private boolean responseRecieved = false;
-    public void handleActionSendOrderToBackend(HashMap<String,OrderedItem> orderList){
+    public void handleActionSendOrderToBackend(HashMap<String,OrderedItem> orderList,int tableId){
         orderdItems = orderList;
         IntentFilter filter = new IntentFilter(Constants.ADD_ORDER_ACTION);
         this.registerReceiver(receiver, filter);
@@ -110,20 +116,21 @@ public class UpdateBackendIntentService extends IntentService {
             orderObject.put("order_total", total);
             orderObject.put("first_name", "");
             orderObject.put("last_name", "");
-            orderObject.put("assignee_id", 11);
+            orderObject.put("assignee_id", GlobalState.getCurrrentUserId());
             orderObject.put("customer_id", 11);
             orderObject.put("status_id", 11);
             WebServerCommunicationService.sendJsonPostRequest(this,orderObject.toString(),"http://resmng.enetlk.com/api/api.php/forsj3vth_orders",Constants.ADD_ORDER_ACTION);
-          while (!responseRecieved){
+            tableID = tableId;
+            while (!responseRecieved){
 
-          }
+            }
             //orderId = Integer.parseInt(SendJOSNPOST("http://resmng.enetlk.com/api/api.php/forsj3vth_orders",orderObject));
             //order.setOrderId(orderId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
-    public void handleActionSendOrderMenusToBackend(int orderId,HashMap<String,OrderedItem> orderedItems){
+    public void handleActionSendOrderMenusToBackend(int orderId,HashMap<String,OrderedItem> orderedItems,int tableId){
         IntentFilter filter = new IntentFilter(Constants.ADD_ORDER_MENUS_ACTION);
         this.registerReceiver(receiver, filter);
         Set<String> keys = orderedItems.keySet();
@@ -137,6 +144,7 @@ public class UpdateBackendIntentService extends IntentService {
                 orderItem.put("quantity", item.getQty());
                 orderItem.put("price", item.getPrice());
                 orderItem.put("subtotal", item.getPrice()*item.getQty());
+                orderItem.put("comment",GlobalState.getCurrrentUserId()+"~"+tableId);
                 WebServerCommunicationService.sendJsonPostRequest(this,orderItem.toString(),"http://resmng.enetlk.com/api/api.php/forsj3vth_order_menus",Constants.ADD_ORDER_MENUS_ACTION);
 
             } catch (JSONException e) {
@@ -156,7 +164,7 @@ public class UpdateBackendIntentService extends IntentService {
             if (arg1.getAction().equals(Constants.ADD_ORDER_ACTION)) {
                 int orderId = Integer.parseInt(arg1.getExtras().getString(Constants.RESPONSE_KEY));
               //  Toast.makeText(getApplicationContext(), arg1.getExtras().getString(Constants.RESPONSE_KEY), Toast.LENGTH_SHORT).show();
-                startActionSendOrderMenusToBackend(getApplicationContext(),orderId,orderdItems);
+                startActionSendOrderMenusToBackend(getApplicationContext(),orderId,orderdItems,tableID);
                 responseRecieved = true;
             }
         }

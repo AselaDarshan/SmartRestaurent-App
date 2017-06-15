@@ -304,7 +304,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 if (response != null && response.equals(Constants.MQTT_DELIVER_SUCCESS)) {
                     publishSuccessCount++;
                     if(publishCount==publishSuccessCount) {
-                        UpdateBackendIntentService.startActionSendOrderToBackend(getApplicationContext(), orderList);
+                        UpdateBackendIntentService.startActionSendOrderToBackend(getApplicationContext(), orderList,Integer.parseInt(tableId));
                         orderSucceed();
                     }
 //                    orderSucceed();
