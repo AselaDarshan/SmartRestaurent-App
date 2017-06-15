@@ -9,6 +9,7 @@
     <color name="textColorPrimary">#00FFFF</color>
     <color name="windowBackground">#ff8a65</color>
     <color name="navigationBarColor">#000000</color>
+    <color name="colorItemBackground">#e0d8a8</color>
 
     <!-- Green -->
     <color name="green_temp">#23393E</color>

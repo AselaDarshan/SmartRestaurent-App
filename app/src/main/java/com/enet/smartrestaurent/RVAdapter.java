@@ -30,13 +30,11 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder>{
     @Override
     public void onBindViewHolder(PersonViewHolder holder, int position) {
         holder.table.setText("Table "+orders.get(position).tableId);
-        ArrayList<String> list = new ArrayList<>();
-        list.add("item1");
-        list.add("item2");
-        holder.horizontalAdapter.setData(list); // List of Strings
+
+        holder.horizontalAdapter.setData(orders.get(position).getItemList()); // List of Strings
         holder.horizontalAdapter.setRowIndex(position);
 
-
+        holder.cv.setTag(position);
 
 
 //        personViewHolder.personAge.setText(persons.get(i).age);

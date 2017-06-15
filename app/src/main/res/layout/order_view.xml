@@ -12,7 +12,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="end">
     <TextView
         android:id="@+id/table_text"
         android:layout_width="fill_parent"
@@ -28,6 +29,19 @@
             android:layout_marginTop="5dp"
             android:layout_height="wrap_content"
             android:visibility="visible"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PRINT BILL"
+            android:layout_margin="10dp"
+            style="@style/ButtonStyle"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="0dp"
+            android:textSize="18sp"
+            android:paddingBottom="0dp"
+            android:onClick="printBillButtonClick" />
 
     </LinearLayout>
 

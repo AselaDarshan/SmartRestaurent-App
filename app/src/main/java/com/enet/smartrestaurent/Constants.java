@@ -37,6 +37,10 @@ public class Constants {
     public static final String ORDER_RECEIVED_TOPIC = "silver_ring_order_received";
     public static final String ORDER_COMPLETED_TOPIC = "silver_ring_order_completed";
 
+    public static String ITEM_STATE_SENT = "SENT";
+    public static String ITEM_STATE_PREPARED = "PREPARED";
+    public static String ITEM_STATE_READY = "READY";
+
     public static final int KITCHEN = 12;
     public static final int BAR = 13;
 

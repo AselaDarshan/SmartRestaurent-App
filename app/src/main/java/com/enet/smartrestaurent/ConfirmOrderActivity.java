@@ -32,6 +32,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -52,6 +53,9 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     private Receiver receiver = new Receiver();
     private HashMap<String,OrderedItem> orderList;
     private Button confirmButton;
+
+    protected int publishSuccessCount = 0;
+    protected int publishCount = 0;
 
     private String tableId;
     @Override
@@ -197,6 +201,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter"+GlobalState.getCurrentUsername(), false, false, null, null);
 
                 mqttClient.publish("new_order", 2, dataToSendToKitchen.toString().getBytes());
+                publishCount++;
 
             }
             if(dataToSendToBar.length()>2) {
@@ -205,6 +210,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter"+GlobalState.getCurrentUsername(), false, false, null, null);
 
                 mqttClient.publish("new_order", 2, dataToSendToBar.toString().getBytes());
+                publishCount++;
             }
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -242,10 +248,21 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     public void orderSucceed(){
 
 
-//        ArrayList<String> itemList = new ArrayList<>();
-//        itemList.add(orderList.keySet().toArray()[0].toString());
-        ActiveOrder activeOrder = new ActiveOrder(tableId);
-        activeOrder.save();
+
+        Set<String> itemNames = orderList.keySet();
+        ActiveOrderItem activeOrderItem = null;
+        OrderedItem item;
+        for (String itemName:itemNames){
+            item = orderList.get(itemName);
+            activeOrderItem = new ActiveOrderItem(itemName,String.valueOf(item.qty),Constants.ITEM_STATE_SENT,Integer.parseInt(tableId),item.orderId);
+            activeOrderItem.save();
+        }
+        List<ActiveOrder> existingOrder = ActiveOrder.findWithQuery(ActiveOrder.class, "SELECT * from ACTIVE_ORDER where TABLE_ID=" +tableId);
+
+        if(existingOrder.size()==0) {
+            ActiveOrder activeOrder = new ActiveOrder(tableId);
+            activeOrder.save();
+        }
 
         final ConfirmOrderActivity obj= this;
         showProgress(false);
@@ -285,8 +302,11 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
                 Log.d("mqtt", "Received to confirmOrderActivity: " + response);
                 if (response != null && response.equals(Constants.MQTT_DELIVER_SUCCESS)) {
-                    UpdateBackendIntentService.startActionSendOrderToBackend(getApplicationContext(),orderList);
-                    orderSucceed();
+                    publishSuccessCount++;
+                    if(publishCount==publishSuccessCount) {
+                        UpdateBackendIntentService.startActionSendOrderToBackend(getApplicationContext(), orderList);
+                        orderSucceed();
+                    }
 //                    orderSucceed();
                 }
                 else if(response != null && response.equals(Constants.MQTT_PUBLISH_FAILED)){
