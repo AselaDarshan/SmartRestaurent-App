@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class OrderedItem implements Serializable {
 
     int menuId;
+    String itemId;
     int category;
     String name;
     double price;
@@ -16,7 +17,7 @@ public class OrderedItem implements Serializable {
     int qty;
 
     int orderId;
-    public OrderedItem(int menuId, int category, String name, double price, String imageName, int preparedIn) {
+    public OrderedItem(int menuId, int category, String name, double price, String imageName, int preparedIn,String itemId) {
 
         this.menuId = menuId;
         this.category = category;
@@ -25,6 +26,7 @@ public class OrderedItem implements Serializable {
         this.imageName = imageName;
         this.preparedIn = preparedIn;
         this.qty = 1;
+        this.itemId = itemId;
     }
 
     public int getMenuId() {

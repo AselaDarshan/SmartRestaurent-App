@@ -9,6 +9,7 @@ public class GlobalState extends Application {
 
     private static GlobalState singleton;
     private static boolean connected = false;
+    public static int orderedItemCount=0;
 
     public static int getCurrrentUserId() {
         return currrentUserId;

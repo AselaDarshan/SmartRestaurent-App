@@ -90,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
 
         else {
             GlobalState.setCurrentUsername(username);
-            GlobalState.setCurrrentUserId(idList.get(spinner2.getSelectedItemPosition()));
+            GlobalState.setCurrrentUserId(idList.get(spinner2.getSelectedItemPosition()-1));
             Intent intent = new Intent(this, StartingActivity.class);
             startActivity(intent);
 

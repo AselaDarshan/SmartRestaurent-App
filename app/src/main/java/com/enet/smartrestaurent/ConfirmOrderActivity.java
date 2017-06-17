@@ -83,6 +83,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         }
         TableLayout table = (TableLayout)ConfirmOrderActivity.this.findViewById(R.id.order_table);
         DecimalFormat decim = new DecimalFormat("0.00");
+        Log.d("confirmorder","item count: "+orderList.size());
         for(String key : orderList.keySet())
         {
             OrderedItem item = orderList.get(key);
@@ -92,12 +93,18 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             ((TextView)row.findViewById(R.id.attrib_value)).setText(decim.format(item.getPrice())+" x "+item.getQty()+" = "+decim.format(item.getPrice()*item.getQty()));
             table.addView(row);
 
-            try {
-                if(orderList.get(key).getPreparedIn()==Constants.KITCHEN)
-                    dataToSendToKitchen.put(key,orderList.get(key).getQty());
-                else if(orderList.get(key).getPreparedIn()==Constants.BAR){
-                    dataToSendToBar.put(key,orderList.get(key).getQty());
 
+            try {
+                JSONObject menuItem = new JSONObject();
+                menuItem.put(Constants.ITEM_QTY_KEY,orderList.get(key).getQty());
+                menuItem.put(Constants.ITEM_ID_KEY,orderList.get(key).itemId);
+                if(orderList.get(key).getPreparedIn()==Constants.KITCHEN) {
+                    dataToSendToKitchen.put(key, menuItem);
+                    Log.d("confirmorder","kitchenItem: "+menuItem);
+                }
+                else if(orderList.get(key).getPreparedIn()==Constants.BAR){
+                    dataToSendToBar.put(key,menuItem);
+                    Log.d("confirmorder","barItem: "+menuItem);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -106,10 +113,10 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         table.requestLayout();     // Not sure if this is needed.
 
         getSupportActionBar().setTitle(Html.fromHtml("<font color=#8B0000>Order Confirmation</font>"));
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-
-        StrictMode.setThreadPolicy(policy);
-        sharedPref = getSharedPreferences("pref",Context.MODE_PRIVATE);
+//        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+//
+//        StrictMode.setThreadPolicy(policy);
+//        sharedPref = getSharedPreferences("pref",Context.MODE_PRIVATE);
 
 
 
@@ -187,7 +194,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     public void confirmOrder(View v){
         showProgress(true);
         confirmButton.setEnabled(false);
-
+        Log.d("confirmorder","confirm button clicked b "+dataToSendToBar.length()+" k "+dataToSendToBar.length());
         IntentFilter filter = new IntentFilter(Constants.MQTT_PUBLISH_STATE_ACTION);
         IntentFilter filter1 = new IntentFilter(Constants.MQTT_CONNECTION_STATE_ACTION);
         this.registerReceiver(receiver, filter);
@@ -197,7 +204,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             MQTTClient mqttClient = new MQTTClient();
             if(dataToSendToKitchen.length()>2) {
 
-
+                Log.d("confirmorder","sending to kitchen");
                 mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter"+GlobalState.getCurrentUsername(), false, false, null, null);
 
                 mqttClient.publish("new_order", 2, dataToSendToKitchen.toString().getBytes());
@@ -205,6 +212,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
             }
             if(dataToSendToBar.length()>2) {
+                Log.d("confirmorder","sending to Bar");
                 mqttClient = new MQTTClient();
 
                 mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter"+GlobalState.getCurrentUsername(), false, false, null, null);
@@ -213,8 +221,10 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 publishCount++;
             }
         } catch (Throwable throwable) {
+            Log.d("confirm_order","mqtt publish error: "+throwable.toString());
             throwable.printStackTrace();
         }
+        Log.d("confirmorder","sent complete");
 //        CommunicationService.sendToServer(this,dataToSend.toString(),Constants.ORDER_RECEIVED_ACTION);
 //        try {
 //
@@ -254,7 +264,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         OrderedItem item;
         for (String itemName:itemNames){
             item = orderList.get(itemName);
-            activeOrderItem = new ActiveOrderItem(itemName,String.valueOf(item.qty),Constants.ITEM_STATE_SENT,Integer.parseInt(tableId),item.orderId);
+            activeOrderItem = new ActiveOrderItem(itemName,String.valueOf(item.qty),Constants.ITEM_STATE_SENT,Integer.parseInt(tableId),item.orderId,item.itemId);
             activeOrderItem.save();
         }
         List<ActiveOrder> existingOrder = ActiveOrder.findWithQuery(ActiveOrder.class, "SELECT * from ACTIVE_ORDER where TABLE_ID=" +tableId);

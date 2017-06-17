@@ -29,7 +29,11 @@ public class Order {
         }
         else{
             MenuItem menuItem =MenuItem.findWithQuery(MenuItem.class,"SELECT * from MENU_ITEM Where name='"+itemName+"'").get(0);
-            OrderedItem item = new OrderedItem(menuItem.id,menuItem.category,menuItem.name,menuItem.price,menuItem.imageName,menuItem.prepearedIn);
+            //userId~tableId~timestamp~localOrderItemId~PreparedInId
+            String itemId = GlobalState.getCurrrentUserId()+"."+tableId+"."+System.currentTimeMillis()+"."+GlobalState.orderedItemCount+"."+menuItem.prepearedIn;
+
+            OrderedItem item = new OrderedItem(menuItem.id,menuItem.category,menuItem.name,menuItem.price,menuItem.imageName,menuItem.prepearedIn,itemId);
+            GlobalState.orderedItemCount++;
             orderedItemList.put(itemName,item);
             return 1;
         }

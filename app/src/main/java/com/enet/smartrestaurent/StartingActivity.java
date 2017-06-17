@@ -21,8 +21,18 @@ import android.widget.Toast;
 
 //import com.orm.SugarContext;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class StartingActivity extends AppCompatActivity {
 
@@ -151,8 +161,12 @@ public class StartingActivity extends AppCompatActivity {
                 if (response != null && !response.contains(Constants.ERROR_RESPONSE)) {
                     Log.d("update Received", "Received to startingActivity: " + response);
                     String topic = response.split("~")[0];
-                    if(topic.contains(Constants.ORDER_COMPLETED_TOPIC))
-                        showMesage(response.split("~")[1]);
+                    if(topic.contains(Constants.ORDER_COMPLETED_TOPIC)) {
+                        showMesage(response.split("~")[1].split("`")[0]);
+                        String itemId = response.split("~")[1].split("`")[1];
+                        UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),itemId);
+                        ActiveOrder.executeQuery("UPDATE ACTIVE_ORDER_ITEM SET STATE = '"+Constants.ITEM_STATE_PREPARED+"' WHERE ITEM_ID='"+itemId+"'");
+                    }
 
                 } else {
 
@@ -163,6 +177,7 @@ public class StartingActivity extends AppCompatActivity {
             }else if(action.equals(Constants.MQTT_CONNECTION_STATE_ACTION)){
                 if (response != null && response.equals(Constants.MQTT_CONNECTION_SUCCESS)) {
                     GlobalState.setConnected(true);
+                    Log.d("mqtt", "Connected! ");
                 }
                 else if (response != null && response.equals(Constants.MQTT_CONNECTION_FAILED)){
                     GlobalState.setConnected(false);

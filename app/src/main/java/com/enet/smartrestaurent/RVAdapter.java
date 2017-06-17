@@ -26,11 +26,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder>{
         this.mContext = context;
         this.orders = orders;
     }
-
+    HorizontalRVAdapter horizontalAdapter;
+    public void notifyChild(){
+        horizontalAdapter.notifyDataSetChanged();
+    }
     @Override
     public void onBindViewHolder(PersonViewHolder holder, int position) {
         holder.table.setText("Table "+orders.get(position).tableId);
-
+        horizontalAdapter = holder.horizontalAdapter;
         holder.horizontalAdapter.setData(orders.get(position).getItemList()); // List of Strings
         holder.horizontalAdapter.setRowIndex(position);
 

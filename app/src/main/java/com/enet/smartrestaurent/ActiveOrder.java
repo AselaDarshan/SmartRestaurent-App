@@ -1,5 +1,7 @@
 package com.enet.smartrestaurent;
 
+import android.util.Log;
+
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 
@@ -20,6 +22,7 @@ public class ActiveOrder extends SugarRecord<ActiveOrder>  {
     public ActiveOrder(String tableId) {
         this.tableId = tableId;
         this.isCompleted = false;
+        this.itemList = new ArrayList<ActiveOrderItem>();
 
     }
     public List<ActiveOrderItem> getItemList() {
@@ -28,6 +31,16 @@ public class ActiveOrder extends SugarRecord<ActiveOrder>  {
 
     public void setItemList(List<ActiveOrderItem> itemList) {
         this.itemList = itemList;
+    }
+    public void changeState(String id,String state){
+        for(ActiveOrderItem item:itemList){
+            Log.d("active_order","item id"+id);
+            if(item.itemId.equals(id)){
+                item.state = state;
+                Log.d("active_order","state changed: "+id+" "+state);
+                return;
+            }
+        }
     }
 
 }

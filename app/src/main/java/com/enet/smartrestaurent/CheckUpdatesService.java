@@ -78,6 +78,7 @@ public class CheckUpdatesService extends IntentService {
 //            }
 //        }
         try {
+            Log.d("checkupdateservice","subscribing");
             MQTTClient mqttClient = new MQTTClient();
 
             mqttClient.initializeMQTTClient(this.getBaseContext(),"tcp://iot.eclipse.org:1883", "silver_ring:app:waiter:subscribe"+GlobalState.getCurrentUsername(), false, false, null, null);

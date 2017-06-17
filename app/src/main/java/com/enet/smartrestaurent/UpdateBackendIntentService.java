@@ -8,12 +8,22 @@ import android.content.IntentFilter;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -27,6 +37,7 @@ public class UpdateBackendIntentService extends IntentService {
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_ORDER = "com.enet.smartrestaurent.action.order";
     private static final String ACTION_ORDER_MENUS = "com.enet.smartrestaurent.action.order_menus";
+    private static final String ACTION_UPDATE_ITEM = "com.enet.smartrestaurent.action.update_item";
 
     private Receiver receiver = new Receiver();
 
@@ -53,7 +64,14 @@ public class UpdateBackendIntentService extends IntentService {
 //        intent.putExtra(EXTRA_PARAM2, param2);
         context.startService(intent);
     }
+    public static void startSyncronizeRequest(Context context,String itemId) {
+        Intent intent = new Intent(context, UpdateBackendIntentService.class);
+        intent.setAction(ACTION_UPDATE_ITEM);
 
+        intent.putExtra("ITEM_ID", itemId);
+//        intent.putExtra(EXTRA_PARAM2, param2);
+        context.startService(intent);
+    }
     /**
      * Starts this service to perform action Baz with the given parameters. If
      * the service is already performing a task this action will be queued.
@@ -87,11 +105,77 @@ public class UpdateBackendIntentService extends IntentService {
                 final int tableId = intent.getIntExtra("TABLE_ID",0);
                 handleActionSendOrderMenusToBackend(orderId,orderList,tableId);
             }
+            else if (ACTION_UPDATE_ITEM.equals(action)) {
+
+                final String itemId = intent.getStringExtra("ITEM_ID");
+                handleSyncronizeRequest(itemId);
+            }
         }
     }
     private HashMap<String,OrderedItem> orderdItems;
     private int tableID;
     private boolean responseRecieved = false;
+    public void handleSyncronizePutRequest(int itemId,String comment){
+        RequestQueue requestQueue = Volley.newRequestQueue(getBaseContext());
+        int REQUEST_TIMEOUT = 10;
+
+        JSONObject dataObject = new JSONObject();
+        try {
+            dataObject.put("option_values",Constants.ITEM_STATE_PREPARED);
+            RequestFuture<JSONObject> future = RequestFuture.newFuture();
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT,"http://resmng.enetlk.com/api/api.php/forsj3vth_order_menus/"+itemId,dataObject, future, future);
+            requestQueue.add(request);
+//            try {
+////                JSONObject responses = future.get(REQUEST_TIMEOUT, TimeUnit.SECONDS); // this will block (forever)
+//            }catch (InterruptedException e) {
+//                e.printStackTrace();
+//            } catch (ExecutionException e) {
+//                e.printStackTrace();
+//            } catch (TimeoutException e) {
+//                e.printStackTrace();
+//            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+//...
+
+
+
+    }
+    public void handleSyncronizeRequest(String itemId){
+        RequestQueue requestQueue = Volley.newRequestQueue(getBaseContext());
+        int REQUEST_TIMEOUT = 10;
+
+        RequestFuture<JSONObject> future = RequestFuture.newFuture();
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,"http://resmng.enetlk.com/api/api.php/forsj3vth_order_menus/?filter=comment,eq,"+itemId, null, future, future);
+        requestQueue.add(request);
+
+//...
+
+        try {
+            JSONObject responses = future.get(REQUEST_TIMEOUT, TimeUnit.SECONDS); // this will block (forever)
+
+
+            Log.d("startingActivity","order Object: "+responses);
+
+            JSONArray menuArray = responses.getJSONObject(Constants.API_ORDER_MENUS).getJSONArray(Constants.RECORDS_KEY);
+            JSONArray item = menuArray.getJSONArray(0);
+            int itemIdDB = item.getInt(0);
+            handleSyncronizePutRequest(itemIdDB,itemId);
+        } catch (InterruptedException e) {
+            // exception handling
+        } catch (ExecutionException e) {
+            // exception handling
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public void handleActionSendOrderToBackend(HashMap<String,OrderedItem> orderList,int tableId){
         orderdItems = orderList;
         IntentFilter filter = new IntentFilter(Constants.ADD_ORDER_ACTION);
@@ -138,13 +222,15 @@ public class UpdateBackendIntentService extends IntentService {
             JSONObject orderItem = new JSONObject();
             try {
                 OrderedItem item = orderedItems.get(key);
+
                 orderItem.put("order_id", orderId);
                 orderItem.put("menu_id", item.getMenuId());
                 orderItem.put("name", item.getName());
                 orderItem.put("quantity", item.getQty());
                 orderItem.put("price", item.getPrice());
                 orderItem.put("subtotal", item.getPrice()*item.getQty());
-                orderItem.put("comment",GlobalState.getCurrrentUserId()+"~"+tableId);
+                orderItem.put("option_values",Constants.ITEM_STATE_SENT);
+                orderItem.put("comment",item.itemId);
                 WebServerCommunicationService.sendJsonPostRequest(this,orderItem.toString(),"http://resmng.enetlk.com/api/api.php/forsj3vth_order_menus",Constants.ADD_ORDER_MENUS_ACTION);
 
             } catch (JSONException e) {
@@ -154,8 +240,13 @@ public class UpdateBackendIntentService extends IntentService {
     }
     @Override
     public void onDestroy()  {
-        unregisterReceiver(receiver);
-        super.onDestroy();
+        try {
+
+
+            unregisterReceiver(receiver);
+            super.onDestroy();
+        }
+        catch (java.lang.IllegalArgumentException e){}
     }
     private class Receiver extends BroadcastReceiver {
 

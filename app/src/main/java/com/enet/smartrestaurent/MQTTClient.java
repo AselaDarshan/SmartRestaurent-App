@@ -19,6 +19,7 @@ package com.enet.smartrestaurent;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -138,6 +139,7 @@ public class MQTTClient implements MqttCallback {
             // such as cleanSession and LWT
             conOpt = new MqttConnectOptions();
             conOpt.setCleanSession(clean);
+            Log.d("mqtt_client","Connection Time out: "+String.valueOf(conOpt.getConnectionTimeout())+"keep alive interval: "+String.valueOf(conOpt.getKeepAliveInterval()))  ;
             if(password != null ) {
                 conOpt.setPassword(this.password.toCharArray());
             }
@@ -308,6 +310,10 @@ public class MQTTClient implements MqttCallback {
 
         if(cause.getMessage().contains("java.net.SocketException"))
             internalBroadcast(Constants.MQTT_CONNECTION_STATE_ACTION,Constants.MQTT_CONNECTION_FAILED);
+        if(cause.toString().contains("Timed out")){
+            log("timed out. re-subscribing..");
+            CheckUpdatesService.startActionUpdateCheck(context);
+        }
        // System.exit(1);
     }
 
