@@ -264,7 +264,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         OrderedItem item;
         for (String itemName:itemNames){
             item = orderList.get(itemName);
-            activeOrderItem = new ActiveOrderItem(itemName,String.valueOf(item.qty),Constants.ITEM_STATE_SENT,Integer.parseInt(tableId),item.orderId,item.itemId);
+            activeOrderItem = new ActiveOrderItem(itemName,String.valueOf(item.qty),Constants.ITEM_STATE_SENT,Integer.parseInt(tableId),item.orderId,item.itemId,item.price);
             activeOrderItem.save();
         }
         List<ActiveOrder> existingOrder = ActiveOrder.findWithQuery(ActiveOrder.class, "SELECT * from ACTIVE_ORDER where TABLE_ID=" +tableId);

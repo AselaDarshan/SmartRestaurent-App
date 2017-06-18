@@ -19,8 +19,10 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +38,9 @@ public class ActiveOrdersActivity extends AppCompatActivity {
     private ArrayList<ActiveOrder> activeOrderList;
 
     private Receiver receiver = new Receiver();
+    private int printOrderId = -1;
+
+    protected Button printButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +77,10 @@ public class ActiveOrdersActivity extends AppCompatActivity {
         this.registerReceiver(receiver,mqttIntentFilter);
         this.registerReceiver(receiver,orderUpdateIntentFilter);
         this.registerReceiver(receiver, mqttConnectionIntentFilter);
+        IntentFilter publishFilter = new IntentFilter(Constants.MQTT_PUBLISH_STATE_ACTION);
+
+        this.registerReceiver(receiver, publishFilter);
+        printOrderId = -1;
 
 
     }
@@ -91,15 +100,63 @@ public class ActiveOrdersActivity extends AppCompatActivity {
     }
 
     public void printBillButtonClick(View v){
-        int position = (Integer) (((CardView)v.getParent().getParent()).getTag());
+        if(printOrderId == -1) {
+            printButton = (Button)v;
+            v.setEnabled(false);
+            int position = (Integer) (((CardView) v.getParent().getParent()).getTag());
+            ActiveOrder order = activeOrderList.get(position);
+            JSONObject dataToSendToPrinter = new JSONObject();
+            printOrderId = position;
+            try {
+//            dataToSendToPrinter.put("TABLE",tableIdText.getText());
+//            dataToSendToPrinter.put("TABLE",tableIdText.getText());
+//            dataToSendToPrinter.put("WAITER",GlobalState.getCurrentUsername());
+//            dataToSendToPrinter.put("WAITER",GlobalState.getCurrentUsername());
+                for (ActiveOrderItem item : order.getItemList()) {
+                    if(item.state.equals(Constants.ITEM_STATE_PREPARED)) {
+                        JSONObject menuItem = new JSONObject();
+                        menuItem.put(Constants.ITEM_QTY_KEY, item.qty);
+                        menuItem.put(Constants.ITEM_NAME_KEY, item.itemName);
+                        menuItem.put(Constants.ITEM_PRICE_KEY, item.price);
+                        dataToSendToPrinter.put(item.itemName, menuItem);
+                    }
+                    else{
+                        Toast toast = Toast.makeText(getApplicationContext(), "Can't print the bill until all item has been prepared", Toast.LENGTH_SHORT);
+                        toast.show();
+                        return;
+                    }
+
+                }
+                MQTTClient mqttClient = new MQTTClient();
+                Log.d("avtive_order", "sending to printer");
+                mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter:printer" + GlobalState.getCurrentUsername(), false, false, null, null);
+                mqttClient.publish("print_bill", 2, dataToSendToPrinter.toString().getBytes());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (MqttException e) {
+                e.printStackTrace();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
 //        activeOrderList.remove(position);
 //        adapter.notifyDataSetChanged();
 //        adapter.notifyItemRemoved(position);
-        Log.d("Active_orders","print bill clicked:"+position);
+            Log.d("Active_orders", "print bill clicked:" + position);
 //        activeOrderList.get(0).itemList.get(0).state="testt";
+        }else{
+            Toast toast = Toast.makeText(getApplicationContext(), "Can't print the bill now! Bill print is in process", Toast.LENGTH_SHORT);
+            toast.show();
+        }
 
     }
-
+    protected void printSuccess(){
+        activeOrderList.remove(printOrderId);
+        adapter.notifyDataSetChanged();
+        adapter.notifyItemRemoved(printOrderId);
+        Log.d("Active_orders", "bill sent to print" + printOrderId);
+        printOrderId = -1;
+    }
     protected void markItemAsReady(String item,String itemId){
         String itemName = item.split(" for table ")[0];
 
@@ -125,7 +182,7 @@ public class ActiveOrdersActivity extends AppCompatActivity {
                 String itemData = item.getString(8);
                 int tableId = Integer.parseInt(itemData.split("\\.")[1]);
 
-                ActiveOrderItem activeOrderItem = new ActiveOrderItem(item.getString(3),String.valueOf(item.getInt(4)),item.getString(7),tableId,item.getInt(1),itemData);
+                ActiveOrderItem activeOrderItem = new ActiveOrderItem(item.getString(3),String.valueOf(item.getInt(4)),item.getString(7),tableId,item.getInt(1),itemData,item.getDouble(5));
 
                 if(activeOrderMap.containsKey(tableId)){
 
@@ -214,7 +271,30 @@ public class ActiveOrdersActivity extends AppCompatActivity {
                    e.printStackTrace();
                }
 
-           }
+           }else if(arg1.getAction().equals(Constants.MQTT_PUBLISH_STATE_ACTION)) {
+//                unregisterReceiver(receiver);
+              //  String response = arg1.getExtras().getString(Constants.RESPONSE_KEY);
+                Log.d("mqtt", "Received to activeOrderActivity: " + response);
+                if (response != null && response.equals(Constants.MQTT_DELIVER_SUCCESS)) {
+                    Log.d("mqtt", "Received to activeOrderActivity: error ");
+                    Toast toast = Toast.makeText(getApplicationContext(), "Bill is printing..", Toast.LENGTH_SHORT);
+                    toast.show();
+                    printSuccess();
+//                    orderSucceed();
+                }
+                else if(response != null && response.equals(Constants.MQTT_PUBLISH_FAILED)){
+                    Log.d("mqtt", "Received to activeOrderActivity: error ");
+                    printButton.setEnabled(true);
+                    Toast toast = Toast.makeText(getApplicationContext(), "Can't print the bill due to connection error!", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                else {
+                    printButton.setEnabled(true);
+                    Log.d("mqtt", "Received to activeOrderActivity: error ");
+                    Toast toast = Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
 
         }
     }
