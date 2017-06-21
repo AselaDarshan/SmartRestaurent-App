@@ -109,8 +109,9 @@ public class ActiveOrdersActivity extends AppCompatActivity {
             printOrderId = position;
             try {
 //            dataToSendToPrinter.put("TABLE",tableIdText.getText());
-//            dataToSendToPrinter.put("TABLE",tableIdText.getText());
-//            dataToSendToPrinter.put("WAITER",GlobalState.getCurrentUsername());
+            dataToSendToPrinter.put("ORDER_ID",order.getItemList().get(0).orderId);
+            dataToSendToPrinter.put("WAITER",GlobalState.getCurrentUsername());
+
 //            dataToSendToPrinter.put("WAITER",GlobalState.getCurrentUsername());
                 for (ActiveOrderItem item : order.getItemList()) {
                     if(item.state.equals(Constants.ITEM_STATE_PREPARED)) {
@@ -118,6 +119,7 @@ public class ActiveOrdersActivity extends AppCompatActivity {
                         menuItem.put(Constants.ITEM_QTY_KEY, item.qty);
                         menuItem.put(Constants.ITEM_NAME_KEY, item.itemName);
                         menuItem.put(Constants.ITEM_PRICE_KEY, item.price);
+                        menuItem.put(Constants.ITEM_ID_KEY, item.itemId);
                         dataToSendToPrinter.put(item.itemName, menuItem);
                     }
                     else{
@@ -134,10 +136,21 @@ public class ActiveOrdersActivity extends AppCompatActivity {
                 mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter:printer" + GlobalState.getCurrentUsername(), false, false, null, null);
                 mqttClient.publish("print_bill", 2, dataToSendToPrinter.toString().getBytes());
             } catch (JSONException e) {
+                printOrderId = -1;
+                printButton.setEnabled(true);
                 e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+
             } catch (MqttException e) {
+                printOrderId = -1;
+                printButton.setEnabled(true);
+                Toast.makeText(getApplicationContext(), "Can't print the bill due to connection error", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             } catch (Throwable throwable) {
+                printOrderId = -1;
+                printButton.setEnabled(true);
+                Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+
                 throwable.printStackTrace();
             }
 
@@ -155,8 +168,8 @@ public class ActiveOrdersActivity extends AppCompatActivity {
     protected void printSuccess(){
         ActiveOrder order = activeOrderList.get(printOrderId);
         List<ActiveOrderItem> itemList = order.getItemList();
-        for(ActiveOrderItem item:itemList)
-            UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),item.itemId,Constants.ITEM_STATE_COMPLETED);
+//        for(ActiveOrderItem item:itemList)
+//            UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),item.itemId,Constants.ITEM_STATE_COMPLETED);
         activeOrderList.remove(printOrderId);
         adapter.notifyDataSetChanged();
         adapter.notifyItemRemoved(printOrderId);
@@ -168,9 +181,14 @@ public class ActiveOrdersActivity extends AppCompatActivity {
         String itemName = item.split(" for table ")[0];
 
         Log.d("Active_orders","item ready: "+itemName+" "+itemId);
-        for(ActiveOrder order:activeOrderList){
-            order.changeState(itemId,Constants.ITEM_STATE_PREPARED);
+        try {
+            for (ActiveOrder order : activeOrderList) {
+                order.changeState(itemId, Constants.ITEM_STATE_PREPARED);
 
+            }
+
+        }catch (java.lang.NullPointerException ex){
+            Log.e("Error_ActiveOrders",ex.toString());
         }
 
         recreate();
@@ -248,7 +266,7 @@ public class ActiveOrdersActivity extends AppCompatActivity {
                         String itemId = response.split("~")[1].split("`")[1];
                         ActiveOrder.executeQuery("UPDATE ACTIVE_ORDER_ITEM SET STATE = '"+Constants.ITEM_STATE_PREPARED+"' WHERE ITEM_ID='"+itemId+"'");
                         markItemAsReady(response.split("~")[1].split("`")[0],response.split("~")[1].split("`")[1]);
-                        UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),itemId,Constants.ITEM_STATE_PREPARED);
+//                        UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),itemId,Constants.ITEM_STATE_PREPARED);
                     }
 
                 } else {

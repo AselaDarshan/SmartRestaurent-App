@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class ActiveOrder extends SugarRecord<ActiveOrder>  {
     String tableId;
+
     boolean isCompleted;
     @Ignore
     List<ActiveOrderItem> itemList;
