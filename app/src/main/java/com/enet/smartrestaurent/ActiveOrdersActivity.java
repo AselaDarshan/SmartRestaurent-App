@@ -96,7 +96,7 @@ public class ActiveOrdersActivity extends AppCompatActivity {
 
     }
     public void retrieveOrderList(){
-        WebServerCommunicationService.sendGetRequest(this,Constants.API_BASE_URL+Constants.API_ORDER_MENUS+"?filter=comment,sw,"+GlobalState.getCurrrentUserId()+".",Constants.ORDERS_UPDATE_ACTION);
+        WebServerCommunicationService.sendGetRequest(this,Constants.API_BASE_URL+Constants.API_ORDER_MENUS+"?filter[]=comment,sw,"+GlobalState.getCurrrentUserId()+".&filter[]=option_values,neq,"+Constants.ITEM_STATE_COMPLETED+"&satisfy=all",Constants.ORDERS_UPDATE_ACTION);
     }
 
     public void printBillButtonClick(View v){
@@ -123,6 +123,8 @@ public class ActiveOrdersActivity extends AppCompatActivity {
                     else{
                         Toast toast = Toast.makeText(getApplicationContext(), "Can't print the bill until all item has been prepared", Toast.LENGTH_SHORT);
                         toast.show();
+                        printOrderId = -1;
+                        printButton.setEnabled(true);
                         return;
                     }
 
@@ -151,11 +153,16 @@ public class ActiveOrdersActivity extends AppCompatActivity {
 
     }
     protected void printSuccess(){
+        ActiveOrder order = activeOrderList.get(printOrderId);
+        List<ActiveOrderItem> itemList = order.getItemList();
+        for(ActiveOrderItem item:itemList)
+            UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),item.itemId,Constants.ITEM_STATE_COMPLETED);
         activeOrderList.remove(printOrderId);
         adapter.notifyDataSetChanged();
         adapter.notifyItemRemoved(printOrderId);
         Log.d("Active_orders", "bill sent to print" + printOrderId);
         printOrderId = -1;
+
     }
     protected void markItemAsReady(String item,String itemId){
         String itemName = item.split(" for table ")[0];
@@ -189,7 +196,13 @@ public class ActiveOrdersActivity extends AppCompatActivity {
                     activeOrderMap.get(tableId).itemList.add(activeOrderItem);
                 }
                 else{
-                    ActiveOrder activeOrder = new ActiveOrder(itemData.split("\\.")[1]);
+                    ActiveOrder activeOrder =null;
+                    if(tableId>99){
+                        activeOrder = new ActiveOrder("Room "+itemData.split("\\.")[1]);
+                    }
+                    else {
+                        activeOrder = new ActiveOrder("Table "+itemData.split("\\.")[1]);
+                    }
                     activeOrder.itemList.add(activeOrderItem);
                     activeOrderMap.put(tableId,activeOrder);
                 }
@@ -235,7 +248,7 @@ public class ActiveOrdersActivity extends AppCompatActivity {
                         String itemId = response.split("~")[1].split("`")[1];
                         ActiveOrder.executeQuery("UPDATE ACTIVE_ORDER_ITEM SET STATE = '"+Constants.ITEM_STATE_PREPARED+"' WHERE ITEM_ID='"+itemId+"'");
                         markItemAsReady(response.split("~")[1].split("`")[0],response.split("~")[1].split("`")[1]);
-                        UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),itemId);
+                        UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),itemId,Constants.ITEM_STATE_PREPARED);
                     }
 
                 } else {
@@ -303,6 +316,7 @@ public class ActiveOrdersActivity extends AppCompatActivity {
         Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
         // Vibrate for 500 milliseconds
         v.vibrate(500);
+
         try {
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);

@@ -46,6 +46,16 @@
         <item name="android:layout_height">160dp</item>
         <item name="android:onClick">tableSelected</item>
     </style>
+    <style name="RoomButtonStyle">
+        <item name="android:textSize">56sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:layout_margin">7dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">.33</item>
+        <item name="android:layout_height">100dp</item>
+        <item name="android:onClick">tableSelected</item>
+    </style>
 
     <style  name="ButtonStyle">
         <item name="android:background">@drawable/button</item>

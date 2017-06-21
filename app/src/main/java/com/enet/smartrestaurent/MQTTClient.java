@@ -120,7 +120,7 @@ public class MQTTClient implements MqttCallback {
                                      boolean quietMode, String userName, String password) throws MqttException {
 
         this.context = context;
-        this.brokerUrl = brokerUrl;
+        this.brokerUrl = Constants.MQTT_BROKER_URL;
         this.quietMode = quietMode;
         this.clean 	   = cleanSession;
         this.password = password;

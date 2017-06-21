@@ -46,6 +46,7 @@ public class Constants {
     public static String ITEM_STATE_SENT = "SENT";
     public static String ITEM_STATE_PREPARED = "PREPARED";
     public static String ITEM_STATE_READY = "READY";
+    public static String ITEM_STATE_COMPLETED = "COMPLETED";
 
     public static String ITEM_QTY_KEY = "item_qty";
     public static String ITEM_ID_KEY = "item_id";
@@ -56,7 +57,7 @@ public class Constants {
     public static int tableIdMultipler = 1000000;
     public static int localIdMultipler = 10000;
     public static int preparedInMultipler = 1000;
-
+    public static String MQTT_BROKER_URL = "tcp://development.enetlk.com:1884";
     public static final int KITCHEN = 12;
     public static final int BAR = 13;
     public static final int WAITER_GROUP_ID = 13;

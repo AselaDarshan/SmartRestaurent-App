@@ -32,7 +32,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder>{
     }
     @Override
     public void onBindViewHolder(PersonViewHolder holder, int position) {
-        holder.table.setText("Table "+orders.get(position).tableId);
+        holder.table.setText(orders.get(position).tableId);
         horizontalAdapter = holder.horizontalAdapter;
         holder.horizontalAdapter.setData(orders.get(position).getItemList()); // List of Strings
         holder.horizontalAdapter.setRowIndex(position);

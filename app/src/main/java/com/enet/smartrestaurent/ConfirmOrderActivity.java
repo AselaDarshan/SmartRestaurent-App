@@ -67,6 +67,12 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
         TextView tableIdText = (TextView) ConfirmOrderActivity.this.findViewById(R.id.table_id_text);
         tableId = getIntent().getStringExtra("TABLE_ID");
+        int tableNo = Integer.parseInt(tableId);
+        if(tableNo>99) {
+            TextView tableText = (TextView) ConfirmOrderActivity.this.findViewById(R.id.tableIdText);
+            tableText.setText("Room No:");
+        }
+
         tableIdText.setText(tableId);
 
         orderList = (HashMap<String, OrderedItem>) getIntent().getSerializableExtra("ORDER");
@@ -207,7 +213,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 Log.d("confirmorder","sending to kitchen");
                 mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter"+GlobalState.getCurrentUsername(), false, false, null, null);
 
-                mqttClient.publish("new_order", 2, dataToSendToKitchen.toString().getBytes());
+                mqttClient.publish("new_order_kitchen", 2, dataToSendToKitchen.toString().getBytes());
                 publishCount++;
 
             }
@@ -217,7 +223,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
                 mqttClient.initializeMQTTClient(this.getBaseContext(), "tcp://iot.eclipse.org:1883", "app:waiter"+GlobalState.getCurrentUsername(), false, false, null, null);
 
-                mqttClient.publish("new_order", 2, dataToSendToBar.toString().getBytes());
+                mqttClient.publish("new_order_bar", 2, dataToSendToBar.toString().getBytes());
                 publishCount++;
             }
         } catch (Throwable throwable) {
@@ -265,7 +271,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         for (String itemName:itemNames){
             item = orderList.get(itemName);
             activeOrderItem = new ActiveOrderItem(itemName,String.valueOf(item.qty),Constants.ITEM_STATE_SENT,Integer.parseInt(tableId),item.orderId,item.itemId,item.price);
-            activeOrderItem.save();
+//            activeOrderItem.save();
         }
         List<ActiveOrder> existingOrder = ActiveOrder.findWithQuery(ActiveOrder.class, "SELECT * from ACTIVE_ORDER where TABLE_ID=" +tableId);
 

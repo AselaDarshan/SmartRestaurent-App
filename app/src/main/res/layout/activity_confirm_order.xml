@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black_overlay"
                     android:text="Table No:"
-                    android:id="@+id/textView2"
+                    android:id="@+id/tableIdText"
                     android:layout_margin="8dp"
                     android:textSize="20sp" />
                 <TextView

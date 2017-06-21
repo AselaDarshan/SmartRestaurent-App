@@ -9,14 +9,14 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.enet.smartrestaurent.TableSelectionActivity"
-    tools:showIn="@layout/activity_table_selection"
+    tools:context="com.enet.smartrestaurent.SelectRoomActivity"
+    tools:showIn="@layout/activity_room_selection"
     android:background="@color/windowBackground"
     android:orientation="vertical">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select the Table"
+        android:text="Select the Room"
         android:id="@+id/textView"
         android:layout_marginEnd="0dp"
         android:textAlignment="center"
@@ -27,7 +27,7 @@
         android:layout_marginTop="10dp" />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
    <LinearLayout
@@ -40,7 +40,7 @@
         <Button
 
 
-            android:text="1"
+            android:text="101"
             android:id="@+id/table1"
             style="@style/TableButtonStyle"
 
@@ -49,7 +49,7 @@
         <Button
 
 
-            android:text="2"
+            android:text="102"
             android:background="@drawable/button"
             android:id="@+id/table2"
             style="@style/TableButtonStyle"
@@ -58,7 +58,7 @@
         <Button
 
 
-            android:text="3"
+            android:text="103"
             android:background="@drawable/button"
             android:id="@+id/table3"
             style="@style/TableButtonStyle"
@@ -72,7 +72,7 @@
             style="@style/TableButtonStyle"
 
 
-            android:text="4"
+            android:text="104"
             android:background="@drawable/button"
             android:id="@+id/table4"
             />
@@ -80,7 +80,7 @@
         <Button
             style="@style/TableButtonStyle"
 
-            android:text="5"
+            android:text="105"
             android:background="@drawable/button"
             android:id="@+id/table5"
              />
@@ -88,7 +88,7 @@
         <Button
             style="@style/TableButtonStyle"
 
-            android:text="6"
+            android:text="106"
             android:background="@drawable/button"
             android:id="@+id/table6"
              />
@@ -101,7 +101,7 @@
 
             style="@style/TableButtonStyle"
 
-            android:text="7"
+            android:text="107"
             android:background="@drawable/button"
             android:id="@+id/table7"
              />
@@ -109,14 +109,14 @@
             style="@style/TableButtonStyle"
 
 
-            android:text="8"
+            android:text="108"
             android:background="@drawable/button"
             android:id="@+id/table8"
      />
         <Button
             style="@style/TableButtonStyle"
 
-            android:text="9"
+            android:text="109"
             android:background="@drawable/button"
             android:id="@+id/table9"
              />
@@ -128,21 +128,21 @@
         <Button
             style="@style/TableButtonStyle"
 
-            android:text="10"
+            android:text="110"
             android:background="@drawable/button"
             android:id="@+id/table10"
             />
         <Button
             style="@style/TableButtonStyle"
 
-            android:text="11"
+            android:text="111"
             android:background="@drawable/button"
             android:id="@+id/table11"
          />
         <Button
             style="@style/TableButtonStyle"
 
-            android:text="12"
+            android:text="112"
             android:background="@drawable/button"
             android:id="@+id/table12"
          />
@@ -150,23 +150,6 @@
 
 
     </LinearLayout>
-     <LinearLayout
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:layout_gravity="right"
-         android:gravity="end">
-     <Button
-         style="@style/ButtonStyle"
 
-         android:text="Rooms"
-         android:background="@drawable/button"
-         android:id="@+id/roomSelcet"
-         android:onClick="selectRoom"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_marginLeft="20dp"
-         android:layout_marginRight="20dp"
-         android:layout_marginTop="5dp" />
-     </LinearLayout>
 
 </LinearLayout>

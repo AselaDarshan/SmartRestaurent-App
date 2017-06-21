@@ -64,11 +64,12 @@ public class UpdateBackendIntentService extends IntentService {
 //        intent.putExtra(EXTRA_PARAM2, param2);
         context.startService(intent);
     }
-    public static void startSyncronizeRequest(Context context,String itemId) {
+    public static void startSyncronizeRequest(Context context,String itemId,String state) {
         Intent intent = new Intent(context, UpdateBackendIntentService.class);
         intent.setAction(ACTION_UPDATE_ITEM);
 
         intent.putExtra("ITEM_ID", itemId);
+        intent.putExtra("STATE", state);
 //        intent.putExtra(EXTRA_PARAM2, param2);
         context.startService(intent);
     }
@@ -108,20 +109,21 @@ public class UpdateBackendIntentService extends IntentService {
             else if (ACTION_UPDATE_ITEM.equals(action)) {
 
                 final String itemId = intent.getStringExtra("ITEM_ID");
-                handleSyncronizeRequest(itemId);
+                final String state = intent.getStringExtra("STATE");
+                handleSyncronizeRequest(itemId,state);
             }
         }
     }
     private HashMap<String,OrderedItem> orderdItems;
     private int tableID;
     private boolean responseRecieved = false;
-    public void handleSyncronizePutRequest(int itemId,String comment){
+    public void handleSyncronizePutRequest(int itemId,String comment,String state){
         RequestQueue requestQueue = Volley.newRequestQueue(getBaseContext());
         int REQUEST_TIMEOUT = 10;
 
         JSONObject dataObject = new JSONObject();
         try {
-            dataObject.put("option_values",Constants.ITEM_STATE_PREPARED);
+            dataObject.put("option_values",state);
             RequestFuture<JSONObject> future = RequestFuture.newFuture();
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT,"http://resmng.enetlk.com/api/api.php/forsj3vth_order_menus/"+itemId,dataObject, future, future);
             requestQueue.add(request);
@@ -144,7 +146,7 @@ public class UpdateBackendIntentService extends IntentService {
 
 
     }
-    public void handleSyncronizeRequest(String itemId){
+    public void handleSyncronizeRequest(String itemId,String state){
         RequestQueue requestQueue = Volley.newRequestQueue(getBaseContext());
         int REQUEST_TIMEOUT = 10;
 
@@ -163,7 +165,7 @@ public class UpdateBackendIntentService extends IntentService {
             JSONArray menuArray = responses.getJSONObject(Constants.API_ORDER_MENUS).getJSONArray(Constants.RECORDS_KEY);
             JSONArray item = menuArray.getJSONArray(0);
             int itemIdDB = item.getInt(0);
-            handleSyncronizePutRequest(itemIdDB,itemId);
+            handleSyncronizePutRequest(itemIdDB,itemId,state);
         } catch (InterruptedException e) {
             // exception handling
         } catch (ExecutionException e) {

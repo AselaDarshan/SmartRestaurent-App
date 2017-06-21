@@ -164,7 +164,7 @@ public class StartingActivity extends AppCompatActivity {
                     if(topic.contains(Constants.ORDER_COMPLETED_TOPIC)) {
                         showMesage(response.split("~")[1].split("`")[0]);
                         String itemId = response.split("~")[1].split("`")[1];
-                        UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),itemId);
+                        UpdateBackendIntentService.startSyncronizeRequest(getBaseContext(),itemId,Constants.ITEM_STATE_PREPARED);
                         ActiveOrder.executeQuery("UPDATE ACTIVE_ORDER_ITEM SET STATE = '"+Constants.ITEM_STATE_PREPARED+"' WHERE ITEM_ID='"+itemId+"'");
                     }
 

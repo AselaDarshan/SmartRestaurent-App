@@ -12,18 +12,18 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
-public class TableSelectionActivity extends AppCompatActivity {
+public class SelectRoomActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_table_selection);
+        setContentView(R.layout.activity_room_selection);
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
 
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_table_selection);
+        setContentView(R.layout.activity_room_selection);
 
         getSupportActionBar().setTitle(Html.fromHtml("<font color=#8B0000>Silver Ring Village Hotel</font>"));
     }
@@ -34,11 +34,6 @@ public class TableSelectionActivity extends AppCompatActivity {
 
 //        String message = editText.getText().toString();
         intent.putExtra("TABLE_ID", ((Button)v).getText().toString());
-        startActivity(intent);
-    }
-
-    public void selectRoom(View v){
-        Intent intent = new Intent(this, SelectRoomActivity.class);
         startActivity(intent);
     }
 
