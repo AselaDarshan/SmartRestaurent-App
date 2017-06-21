@@ -64,15 +64,28 @@ public class StartingActivity extends AppCompatActivity {
         menu = new Menu(this);
 
 
-      CheckUpdatesService.startActionUpdateCheck(this);
+        CheckUpdatesService.startActionUpdateCheck(this);
 
 
     }
-
+    @Override
+    protected void onResume(){
+        Log.d("Starting_Activity","onResume");
+        super.onResume();
+        CheckUpdatesService.startActionUpdateCheck(this);
+    }
+    @Override
+    protected void onPause(){
+        Log.d("Starting_Activity","onPause");
+        super.onPause();
+        CheckUpdatesService.mqttClient.disconnect();
+    }
     @Override
     protected void onDestroy(){
+        Log.d("Starting_Activity","onDestroy");
         super.onDestroy();
         this.unregisterReceiver(receiver);
+        CheckUpdatesService.mqttClient.disconnect();
     }
 
     public void newOrderButtonClicked(View v){

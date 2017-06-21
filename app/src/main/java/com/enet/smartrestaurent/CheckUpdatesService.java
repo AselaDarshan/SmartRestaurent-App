@@ -24,6 +24,8 @@ public class CheckUpdatesService extends IntentService {
 
     private static Intent intent;
 
+    public static MQTTClient mqttClient=null;
+
     public CheckUpdatesService() {
         super("CheckUpdatesService");
     }
@@ -79,10 +81,12 @@ public class CheckUpdatesService extends IntentService {
 //        }
         try {
             Log.d("checkupdateservice","subscribing");
-            MQTTClient mqttClient = new MQTTClient();
+            mqttClient = new MQTTClient();
 
             mqttClient.initializeMQTTClient(this.getBaseContext(),"tcp://iot.eclipse.org:1883", "silver_ring:app:waiter:subscribe"+GlobalState.getCurrentUsername(), false, false, null, null);
             mqttClient.subscribe(Constants.ORDER_COMPLETED_TOPIC+GlobalState.getCurrentUsername(),Constants.ORDER_RECEIVED_TOPIC+GlobalState.getCurrentUsername(),2);
+
+            mqttClient.disconnect();
         } catch (Throwable throwable) {
             Log.d("mqtt","exception on subscribe");
             throwable.printStackTrace();

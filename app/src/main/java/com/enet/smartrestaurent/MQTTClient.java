@@ -103,7 +103,9 @@ public class MQTTClient implements MqttCallback {
         return sb.toString();
     }
 
-
+    public void disconnect(){
+        state = DISCONNECT;
+    }
     /**
      * Constructs an instance of the sample client wrapper
      *

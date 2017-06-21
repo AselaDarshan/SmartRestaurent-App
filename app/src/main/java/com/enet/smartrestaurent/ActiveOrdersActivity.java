@@ -85,7 +85,20 @@ public class ActiveOrdersActivity extends AppCompatActivity {
 
     }
     @Override
+    protected void onResume(){
+        Log.d("ActiveOrdersActivity","onResume");
+        super.onResume();
+        CheckUpdatesService.startActionUpdateCheck(this);
+    }
+    @Override
+    protected void onPause(){
+        Log.d("ActiveOrdersActivity","onPause");
+        super.onPause();
+        CheckUpdatesService.mqttClient.disconnect();
+    }
+    @Override
     protected void onDestroy(){
+        Log.d("ActiveOrdersActivity","onDestroy");
         super.onDestroy();
         try {
             this.unregisterReceiver(receiver);
