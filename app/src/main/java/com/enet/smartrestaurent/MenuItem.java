@@ -12,6 +12,7 @@ public class MenuItem extends SugarRecord<MenuItem> {
     String name;
     double price;
     String imageName;
+    String options;//"option:value,option:value.."
     int prepearedIn;
 
     public MenuItem()

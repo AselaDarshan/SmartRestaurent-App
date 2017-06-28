@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -66,6 +67,10 @@ public class Menu {
 
         MenuItem.deleteAll(MenuItem.class);
         MenuItem.saveInTx(items);
+
+        //update menu options
+        WebServerCommunicationService.sendGetRequest(ctx,Constants.API_BASE_URL+Constants.API_OPTION_VALUES+"?include="+Constants.API_MENU_OPTIONS,Constants.OPTIONS_UPDATE_ACTION);
+
     }
 
     public void updateCategories(Context ctx,JSONObject categoriesObject) throws JSONException {
@@ -110,6 +115,26 @@ public class Menu {
             WebServerCommunicationService.sendGetRequest(ctx,Constants.API_BASE_URL+Constants.API_MENU,Constants.MENU_UPDATE_ACTION);
 
 //        }
+    }
+    public void updateMenuOptions(Context ctx,JSONObject responseObject) throws JSONException {
+        JSONArray optionValuesArray = responseObject.getJSONObject(Constants.API_OPTION_VALUES).getJSONArray(Constants.RECORDS_KEY);
+        HashMap<Integer,String> optionNames = new HashMap<>();
+        //store option names
+        for(int i=0;i<optionValuesArray.length();i++){
+            optionNames.put(optionValuesArray.getJSONArray(i).getInt(0),optionValuesArray.getJSONArray(i).getString(2));
+        }
+        //get vales for options and add them to menu item
+        JSONArray menuOptionsArray = responseObject.getJSONObject(Constants.API_MENU_OPTIONS).getJSONArray(Constants.RECORDS_KEY);
+        for(int i=0; i<menuOptionsArray.length();i++){
+            JSONArray menuOption = menuOptionsArray.getJSONArray(i);
+
+            int menuId = menuOption.getInt(2);
+
+
+
+        }
+
+        Log.d("menu","Updating menu options");
     }
 
 }

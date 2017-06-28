@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+
+
 //import com.orm.SugarContext;
 
 import com.android.volley.Request;
@@ -26,10 +28,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
+//import com.github.ooxi.phparser.SerializedPhpParser;
+//import com.github.ooxi.phparser.SerializedPhpParserException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lorecraft.phparser.SerializedPhpParser;
+import org.lorecraft.phparser.SerializedPhpParserException;
 
+import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -59,6 +66,25 @@ public class StartingActivity extends AppCompatActivity {
         this.registerReceiver(receiver, categoriesUpdateIntentFilter);
         this.registerReceiver(receiver, mqttConnectionIntentFilter);
 
+
+
+        String data = "a:2:{i:1;a:5:{s:15:\"option_value_id\";s:2:\"17\";s:5:\"price\";s:4:\"1900\";s:8:\"quantity\";s:0:\"\";s:14:\"subtract_stock\";s:1:\"0\";s:20:\"menu_option_value_id\";s:0:\"\";}i:2;a:5:{s:15:\"option_value_id\";s:2:\"18\";s:5:\"price\";s:3:\"950\";s:8:\"quantity\";s:0:\"\";s:14:\"subtract_stock\";s:1:\"0\";s:20:\"menu_option_value_id\";s:0:\"\";}}";
+        SerializedPhpParser phparser = new SerializedPhpParser(data);
+        LinkedHashMap result = null;
+        try {
+            result = (LinkedHashMap)phparser.parse();
+//            System.out.println("Price: "+((SerializedPhpParser.PhpObject)result.get(1)).attributes.get("price"));
+            System.out.println("size: "+result.size());
+            for(Object key:result.keySet()){
+                System.out.println("Price: "+((LinkedHashMap)result.get(key)).get("price"));
+
+            }
+        } catch (SerializedPhpParserException e) {
+            System.out.println("SerializedPhpParserException:"+e);
+            e.printStackTrace();
+        }
+
+
         
 
         menu = new Menu(this);
@@ -75,10 +101,14 @@ public class StartingActivity extends AppCompatActivity {
         CheckUpdatesService.startActionUpdateCheck(this);
     }
     @Override
-    protected void onPause(){
-        Log.d("Starting_Activity","onPause");
+    protected void onPause() {
+        Log.d("Starting_Activity", "onPause");
         super.onPause();
-        CheckUpdatesService.mqttClient.disconnect();
+        try {
+            CheckUpdatesService.mqttClient.disconnect();
+
+        }catch (java.lang.NullPointerException e){}
+
     }
     @Override
     protected void onDestroy(){
@@ -163,6 +193,17 @@ public class StartingActivity extends AppCompatActivity {
                 try {
                     JSONObject jObject = new JSONObject(response);
                     menu.updateCategories(getApplicationContext(),jObject);
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            else if(action.equals(Constants.OPTIONS_UPDATE_ACTION)){
+                try {
+                    JSONObject jObject = new JSONObject(response);
+                    menu.updateMenuOptions(getApplicationContext(),jObject);
 
 
                 } catch (JSONException e) {

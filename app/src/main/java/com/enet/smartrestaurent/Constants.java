@@ -12,6 +12,8 @@ public class Constants {
     public static final String CHECKUPDATES_ACTION = "check_updates_action";
     public static final String ADD_ORDER_ACTION = "add_order_action";
     public static final String ADD_ORDER_MENUS_ACTION = "add_order_menus_action";
+    public static final String OPTIONS_UPDATE_ACTION = "options_update_action";
+
     public static final String MQTT_ACTION = "mqtt_action";
     public static final String MQTT_PUBLISH_STATE_ACTION = "mqtt_publish_state";
     public static final String MQTT_CONNECTION_STATE_ACTION = "mqtt_connection_state";
@@ -36,6 +38,8 @@ public class Constants {
     public static final String API_CATEGORIES = "forsj3vth_categories";
     public static final String API_STAFF = "forsj3vth_staffs";
     public static final String API_ORDER_MENUS = "forsj3vth_order_menus";
+    public static final String API_OPTION_VALUES = "forsj3vth_option_values";
+    public static final String API_MENU_OPTIONS = "forsj3vth_menu_options";
 
 
     public static final String RECORDS_KEY = "records";
