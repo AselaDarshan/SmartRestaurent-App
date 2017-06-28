@@ -238,7 +238,7 @@ public class menuActivity extends AppCompatActivity  implements AdapterView.OnIt
         String item =((TextView)((LinearLayout)((ViewGroup)parent.getParent()).getChildAt(1)).getChildAt(0)).getText().toString();
 
         //  priceText.setText(decim.format(Double.parseDouble(optionPriceMap.get(pos))) + " LKR");
-        ((TextView) ((ViewGroup) ((ViewGroup) parent.getParent()).getChildAt(1)).getChildAt(1)).setText( decim.format(price));
+        ((TextView) ((ViewGroup) ((ViewGroup) parent.getParent()).getChildAt(1)).getChildAt(1)).setText( decim.format(price)+" LKR");
 
 
 

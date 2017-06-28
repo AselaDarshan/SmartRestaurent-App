@@ -81,7 +81,7 @@ public class ItemListAdapter extends SimpleAdapter{
 //        spinnerArray.add("item1");
 //        spinnerArray.add("item2");
 
-            ArrayAdapter<StringWithTag> adapter = new ArrayAdapter<StringWithTag>(mContext, android.R.layout.simple_spinner_item, list);
+            ArrayAdapter<StringWithTag> adapter = new ArrayAdapter<StringWithTag>(mContext, R.layout.menu_options_spinner_item, list);
 
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 

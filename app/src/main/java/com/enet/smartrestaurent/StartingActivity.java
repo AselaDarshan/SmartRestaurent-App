@@ -127,7 +127,8 @@ public class StartingActivity extends AppCompatActivity {
             startActivity(intent);
         }
         else{
-            showError("Not Connected!","Please check the WiFi connection");
+            Toast.makeText(getApplicationContext(), "Not Connected to the Network!", Toast.LENGTH_SHORT).show();
+            //showError("Not Connected!","Please check the WiFi connection");
         }
     }
     public void activeOrdersButtonClicked(View v){
