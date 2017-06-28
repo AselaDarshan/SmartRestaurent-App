@@ -17,7 +17,7 @@ public class OrderedItem implements Serializable {
     int qty;
 
     int orderId;
-    public OrderedItem(int menuId, int category, String name, double price, String imageName, int preparedIn,String itemId) {
+    public OrderedItem(int menuId, int category, String name, double price, String imageName, int preparedIn,String itemId,int qty) {
 
         this.menuId = menuId;
         this.category = category;
@@ -25,7 +25,7 @@ public class OrderedItem implements Serializable {
         this.price = price;
         this.imageName = imageName;
         this.preparedIn = preparedIn;
-        this.qty = 1;
+        this.qty = qty;
         this.itemId = itemId;
     }
 

@@ -28,6 +28,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -194,8 +195,19 @@ public class menuActivity extends AppCompatActivity  implements AdapterView.OnIt
         String item =((TextView)((LinearLayout)((ViewGroup)v.getParent().getParent().getParent()).getChildAt(1)).getChildAt(0)).getText().toString();
         Log.d("menu",item);
 
+        // ((TextView)((LinearLayout)((ViewGroup)v.getParent().getParent().getParent()).getChildAt(1)).getChildAt(0)).getText().toString();
+
 
         ((TextView) ((ViewGroup) ((ViewGroup) v.getParent().getParent().getParent()).getChildAt(3)).getChildAt(0)).setText(String.valueOf(order.addItem(item)));
+
+        Spinner optionSpinner = ((Spinner)((LinearLayout)((ViewGroup)v.getParent().getParent().getParent())).getChildAt(2));
+
+        if(optionSpinner.getSelectedItem()!=null) {
+            String optionName = optionSpinner.getSelectedItem().toString();
+            String optionValue = (String) ((StringWithTag)optionSpinner.getSelectedItem()).tag;
+            order.setOption(item,optionName,Double.parseDouble(optionValue));
+            Log.d("menu", "optionsName: " + optionName+" optionValue:"+optionValue);
+        }
 
     }
     public void removeButtonClickHandler(View v){
@@ -214,15 +226,27 @@ public class menuActivity extends AppCompatActivity  implements AdapterView.OnIt
                                int pos, long id) {
         // An item was selected. You can retrieve the selected item using
         // parent.getItemAtPosition(pos)
-        DecimalFormat decim = new DecimalFormat("0.00");
+
         if(prevPos!=pos){
             prevPos = pos;
 
         }
-      //  priceText.setText(decim.format(Double.parseDouble(optionPriceMap.get(pos))) + " LKR");
-        ((TextView) ((ViewGroup) ((ViewGroup) parent.getParent()).getChildAt(1)).getChildAt(1)).setText(((TextView)(parent.getSelectedView())).getText());
+        StringWithTag s = (StringWithTag) parent.getItemAtPosition(pos);
+        Double price = Double.parseDouble(s.tag.toString());
+        DecimalFormat decim = new DecimalFormat("0.00");
 
-        Log.d("Item_list_Adapter", "item selected: "+ parent.getSelectedItem()+ " "+ pos+" id: "+id);
+        String item =((TextView)((LinearLayout)((ViewGroup)parent.getParent()).getChildAt(1)).getChildAt(0)).getText().toString();
+
+        //  priceText.setText(decim.format(Double.parseDouble(optionPriceMap.get(pos))) + " LKR");
+        ((TextView) ((ViewGroup) ((ViewGroup) parent.getParent()).getChildAt(1)).getChildAt(1)).setText( decim.format(price));
+
+
+
+        Log.d("menu", "item selected: "+ parent.getSelectedItem()+ " "+ pos+" id: "+id);
+
+        Log.d("menu",item);
+       // order.setOption(item,s.toString(),price);
+        //int newCount = order.removeItem(item);
     }
 
     public void onNothingSelected(AdapterView<?> parent) {

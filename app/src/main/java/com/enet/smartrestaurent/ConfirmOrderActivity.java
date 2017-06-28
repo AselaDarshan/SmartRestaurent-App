@@ -93,9 +93,10 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         for(String key : orderList.keySet())
         {
             OrderedItem item = orderList.get(key);
+            String itemName = item.getName();
             // Inflate your row "template" and fill out the fields.
             TableRow row = (TableRow) LayoutInflater.from(ConfirmOrderActivity.this).inflate(R.layout.order_row, null);
-            ((TextView)row.findViewById(R.id.attrib_name)).setText(key);
+            ((TextView)row.findViewById(R.id.attrib_name)).setText(itemName);
             ((TextView)row.findViewById(R.id.attrib_value)).setText(decim.format(item.getPrice())+" x "+item.getQty()+" = "+decim.format(item.getPrice()*item.getQty()));
             table.addView(row);
 
@@ -105,11 +106,11 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 menuItem.put(Constants.ITEM_QTY_KEY,orderList.get(key).getQty());
                 menuItem.put(Constants.ITEM_ID_KEY,orderList.get(key).itemId);
                 if(orderList.get(key).getPreparedIn()==Constants.KITCHEN) {
-                    dataToSendToKitchen.put(key, menuItem);
+                    dataToSendToKitchen.put(itemName, menuItem);
                     Log.d("confirmorder","kitchenItem: "+menuItem);
                 }
                 else if(orderList.get(key).getPreparedIn()==Constants.BAR){
-                    dataToSendToBar.put(key,menuItem);
+                    dataToSendToBar.put(itemName,menuItem);
                     Log.d("confirmorder","barItem: "+menuItem);
                 }
             } catch (JSONException e) {

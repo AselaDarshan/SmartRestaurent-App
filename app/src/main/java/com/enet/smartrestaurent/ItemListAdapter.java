@@ -68,21 +68,28 @@ public class ItemListAdapter extends SimpleAdapter{
         if(optionsString!=null) {
 
             String[] optionArray = optionsString.split(",");// new ArrayList<String>();
-            String[] spinnerArray = new String[optionArray.length];
-            for(int i=0;i<optionArray.length;i++){
-                spinnerArray[i] = optionArray[i].split(":")[0];
+//            String[] spinnerArray = new String[optionArray.length];
+            List<StringWithTag> list = new ArrayList<StringWithTag>();
 
-                optionPriceMap.put(i,optionArray[i].split(":")[1]);
+
+            int itemCount= 0;
+            for(itemCount=0;itemCount<optionArray.length;itemCount++){
+//                spinnerArray[itemCount] = optionArray[itemCount].split(":")[0];
+                list.add(new StringWithTag(optionArray[itemCount].split(":")[0], optionArray[itemCount].split(":")[1]));
+//                optionPriceMap.put(i,optionArray[i].split(":")[1]);
             }
 //        spinnerArray.add("item1");
 //        spinnerArray.add("item2");
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, spinnerArray);
+            ArrayAdapter<StringWithTag> adapter = new ArrayAdapter<StringWithTag>(mContext, android.R.layout.simple_spinner_item, list);
 
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
             options.setAdapter(adapter);
             options.setOnItemSelectedListener((AdapterView.OnItemSelectedListener) mContext);
+//            for(int i=0;i<itemCount;i++){
+//                options.getChildAt(i).setTag(optionArray[i].split(":")[1]);
+//            }
 
             Log.d("Item_list_Adapter", "options: " + options);
         }
