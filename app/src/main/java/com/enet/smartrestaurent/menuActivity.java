@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,7 +42,7 @@ import java.util.List;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class menuActivity extends AppCompatActivity {
+public class menuActivity extends AppCompatActivity  implements AdapterView.OnItemSelectedListener {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -193,7 +195,7 @@ public class menuActivity extends AppCompatActivity {
         Log.d("menu",item);
 
 
-        ((TextView) ((ViewGroup) ((ViewGroup) v.getParent().getParent().getParent()).getChildAt(2)).getChildAt(0)).setText(String.valueOf(order.addItem(item)));
+        ((TextView) ((ViewGroup) ((ViewGroup) v.getParent().getParent().getParent()).getChildAt(3)).getChildAt(0)).setText(String.valueOf(order.addItem(item)));
 
     }
     public void removeButtonClickHandler(View v){
@@ -201,9 +203,29 @@ public class menuActivity extends AppCompatActivity {
         Log.d("menu",item);
         int newCount = order.removeItem(item);
         if(newCount>0) {
-            ((TextView) ((ViewGroup) ((ViewGroup) v.getParent().getParent().getParent()).getChildAt(2)).getChildAt(0)).setText(String.valueOf(newCount));
+            ((TextView) ((ViewGroup) ((ViewGroup) v.getParent().getParent().getParent()).getChildAt(3)).getChildAt(0)).setText(String.valueOf(newCount));
         }
         else
-            ((TextView)((ViewGroup)((ViewGroup)v.getParent().getParent().getParent()).getChildAt(2)).getChildAt(0)).setText("");
+            ((TextView)((ViewGroup)((ViewGroup)v.getParent().getParent().getParent()).getChildAt(3)).getChildAt(0)).setText("");
+    }
+
+    int prevPos = -1;
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        DecimalFormat decim = new DecimalFormat("0.00");
+        if(prevPos!=pos){
+            prevPos = pos;
+
+        }
+      //  priceText.setText(decim.format(Double.parseDouble(optionPriceMap.get(pos))) + " LKR");
+        ((TextView) ((ViewGroup) ((ViewGroup) parent.getParent()).getChildAt(1)).getChildAt(1)).setText(((TextView)(parent.getSelectedView())).getText());
+
+        Log.d("Item_list_Adapter", "item selected: "+ parent.getSelectedItem()+ " "+ pos+" id: "+id);
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
     }
 }

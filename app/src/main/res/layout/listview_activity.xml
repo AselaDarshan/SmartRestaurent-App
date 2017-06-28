@@ -34,7 +34,12 @@
             android:layout_height="wrap_content"
             android:paddingTop="5dp"
             android:textSize="16sp" />
+
     </LinearLayout>
+    <Spinner
+        android:id="@+id/listview_item_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

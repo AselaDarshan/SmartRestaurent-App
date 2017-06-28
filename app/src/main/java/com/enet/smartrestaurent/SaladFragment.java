@@ -69,6 +69,7 @@ public class SaladFragment extends Fragment{
                     DecimalFormat decim = new DecimalFormat("0.00");
                     hm.put("listview_price", decim.format(item.price) + " LKR");
                     hm.put("listview_image",item.imageName );
+                    hm.put("listview_options",item.options );
                     aList.add(hm);
 
                 } catch (NullPointerException ex) {
@@ -80,7 +81,7 @@ public class SaladFragment extends Fragment{
 
             int[] to = {R.id.listview_image, R.id.listview_item_title, R.id.listview_item_short_description};
 
-            ItemListAdapter itemListAdapter = new ItemListAdapter(getActivity().getBaseContext(), aList, R.layout.listview_activity, from, to);
+            ItemListAdapter itemListAdapter = new ItemListAdapter(getActivity(), aList, R.layout.listview_activity, from, to);
             ListView androidListView = (ListView) view.findViewById(R.id.list_view);
             androidListView.setAdapter(itemListAdapter);
         }

@@ -32,7 +32,7 @@ public class Order {
             //userId~tableId~timestamp~localOrderItemId~PreparedInId
             String itemId = GlobalState.getCurrrentUserId()+"."+tableId+"."+System.currentTimeMillis()+"."+GlobalState.orderedItemCount+"."+menuItem.prepearedIn;
 
-            OrderedItem item = new OrderedItem(menuItem.id,menuItem.category,menuItem.name,menuItem.price,menuItem.imageName,menuItem.prepearedIn,itemId);
+            OrderedItem item = new OrderedItem(menuItem.menuId,menuItem.category,menuItem.name,menuItem.price,menuItem.imageName,menuItem.prepearedIn,itemId);
             GlobalState.orderedItemCount++;
             orderedItemList.put(itemName,item);
             return 1;

@@ -59,10 +59,12 @@ public class StartingActivity extends AppCompatActivity {
 
         IntentFilter mqttIntentFilter = new IntentFilter(Constants.MQTT_NEW_MESSAGE_ACTION);
         IntentFilter menuUpdateIntentFilter = new IntentFilter(Constants.MENU_UPDATE_ACTION);
+        IntentFilter optionsUpdateIntentFilter = new IntentFilter(Constants.OPTIONS_UPDATE_ACTION);
         IntentFilter categoriesUpdateIntentFilter = new IntentFilter(Constants.CATEGORIES_UPDATE_ACTION);
         IntentFilter mqttConnectionIntentFilter = new IntentFilter(Constants.MQTT_CONNECTION_STATE_ACTION);
         this.registerReceiver(receiver,mqttIntentFilter);
         this.registerReceiver(receiver, menuUpdateIntentFilter);
+        this.registerReceiver(receiver, optionsUpdateIntentFilter);
         this.registerReceiver(receiver, categoriesUpdateIntentFilter);
         this.registerReceiver(receiver, mqttConnectionIntentFilter);
 
